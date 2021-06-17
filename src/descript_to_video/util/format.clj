@@ -1,4 +1,4 @@
-(ns descript-to-video.util)
+(ns descript-to-video.util.format)
 
 (defn hexify
   "テキストをUTF-16LEとして受け取りhexの値を返す"

@@ -1,7 +1,8 @@
-(ns descript-to-video.aviutl
+(ns descript-to-video.aviutl.aviutl
+  (:gen-class)
   (:require [clojure.java.io :as io]
             [clojure.string :only join]
-            [descript-to-video.util :as util]))
+            [descript-to-video.util.format :as util]))
 
 (defn format-text-as-aviutl-object
   "引数のテキストをaviUtl拡張編集の.obj形式のテキストにする
@@ -21,7 +22,9 @@
 (defn set-object-body
   "TODO:Mapを使った実装にする?"
   [body key seq]
-  (map #(if (= %1 key) (str %1 (format-text-as-aviutl-object body)) (str %1)) seq))
+  (map 
+   #(if (= %1 key) (str %1 (format-text-as-aviutl-object body)) %1) ;;
+   seq))
 
 (defn gen-object
   "templateをコピーし、表示するテキストがtextのオブジェクトを生成する
