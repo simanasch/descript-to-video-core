@@ -1,4 +1,4 @@
-(ns descript-to-video.core
+(ns descriptToVideo.core
   (:gen-class))
 
 (defn -main

@@ -9,12 +9,8 @@
                  [instaparse "1.4.10"]]
   :main ^:skip-aot descript-to-video.core
   :target-path "target/%s"
-  :profiles {
-            ;;  :uberjar {:aot :all
-            ;;            :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}
-             :clr {:aot :all}}
-  :clr {:cmd-templates  {:clj-exe   [[?PATH "mono"] [CLJCLR %1]]
-                         :clj-dep   [[?PATH "mono"] ["target/clr/clj/Debug 4.0" %1]]
+  :profiles {}
+  :clr {:cmd-templates  {:clj-dep   [[?PATH "mono"] ["target/default/clr/clj/Debug 4.0" %1]]
                          :clj-url   "http://sourceforge.net/projects/clojureclr/files/clojure-clr-1.4.1-Debug-4.0.zip/download"
                          :clj-zip   "clojure-clr-1.4.1-Debug-4.0.zip"
                          :curl      ["curl" "--insecure" "-f" "-L" "-o" %1 %2]
@@ -25,5 +21,5 @@
         :deps-cmds      [[:curl  :clj-zip :clj-url]
                          [:unzip "../clj" :clj-zip]
                          ]
-        :main-cmd      [:clj-exe "Clojure.Main.exe"]
-        :compile-cmd   [:clj-exe "Clojure.Compile.exe"]})
+        :main-cmd      [:clj-dep "Clojure.Main.exe"]
+        :compile-cmd   [:clj-dep "Clojure.Compile.exe"]})
