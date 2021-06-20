@@ -1,14 +1,15 @@
 (ns descript-to-video.aviutl.aviutl
   (:gen-class)
-  (:require [clojure.java.io :as io]
+  (:require [clojure.clr.io :as io]
             [clojure.string :only join]
-            [descript-to-video.util.format :as util]))
+            [descript-to-video.util.format :as formatter]
+            [instaparse.core :as insta]))
 
 (defn format-text-as-aviutl-object
   "引数のテキストをaviUtl拡張編集の.obj形式のテキストにする
    テキストをUTF-16LEでエンコードした場合のbinary値を、lengthが4096になるまで右側に0詰めする"
   [text]
-  (let [encoded (util/hexify text)
+  (let [encoded (formatter/hexify text)
         pad (take (- 4096 (count encoded)) (repeat "0"))]
     (apply str encoded pad)))
 
@@ -22,7 +23,7 @@
 (defn set-object-body
   "TODO:Mapを使った実装にする?"
   [body key seq]
-  (map 
+  (map
    #(if (= %1 key) (str %1 (format-text-as-aviutl-object body)) %1) ;;
    seq))
 
