@@ -1,8 +1,8 @@
 (ns descriptToVideo.aviutl.aviutl
   (:gen-class)
-  (:require [clojure.clr.io :as f]
+  (:require [descriptToVideo.util.format :as formatter]
             [clojure.string :only join]
-            [descriptToVideo.util.format :as formatter]))
+            [clojure.clr.io :as f]))
 
 (defn format-text-as-aviutl-object
   "引数のテキストをaviUtl拡張編集の.obj形式のテキストにする
@@ -30,7 +30,7 @@
   "templateをコピーし、表示するテキストがtextのオブジェクトを生成する
    TODO:ファイル名を変数にする、処理をきれいにする、set-object-bodyあたりを分割する"
   [text template & rest]
-  (with-open [r (f/reader (get-template template) :encoding "shift-jis")
-              o (f/writer "test.exo" :encoding "shift-jis")]
+  (with-open [r (f/text-reader (get-template template) :encoding "shift-jis")
+              o (f/text-writer "test.exo" :encoding "shift-jis")]
     (doseq [body (reduce conj [] (set-object-body text "text=" (line-seq r)))]
       (.write o (str body "\r\n")))))
