@@ -14,3 +14,4 @@ pom.xml.asc
 .lsp/
 .calva/
 node_modules
+.vscode
