@@ -1,6 +1,6 @@
 (ns descript-to-video.aviutl.aviutl
   (:gen-class)
-  (:require [clojure.clr.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :only join]
             [descript-to-video.util.format :as formatter]
             [instaparse.core :as insta]))
