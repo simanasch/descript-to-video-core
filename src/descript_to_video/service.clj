@@ -16,3 +16,11 @@
                    (.setMessage (str "Hello, " name))
                    (.build)))
       (.onCompleted))))
+
+(defn -sayHelloAgain [this req res]
+  (let [name (.getName req)]
+    (doto res
+      (.onNext (-> (HelloReply/newBuilder)
+                   (.setMessage (str "Hello Again," name))
+                   (.build)))
+      (.onCompleted))))
