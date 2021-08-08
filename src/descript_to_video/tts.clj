@@ -6,10 +6,20 @@
 
 (def separator #"-----\r\n")
 
+(def default-output-path "voices/")
+
 (defn talk
   "TTSライブラリ名とテキストを指定し、SpeechSample.exeで喋らせる"
-  [Library text]
-  (shell/sh "cmd" "/c" ttsControllerPath "-t" text "-n" Library))
+  [library text]
+  (shell/sh "cmd" "/c" ttsControllerPath "-t" text "-n" library))
+
+(defn gen-wav-name
+  [library text]
+  (str library "_" text ".wav"))
+
+(defn save-to-file
+  [library text]
+  (shell/sh "cmd" "/c" ttsControllerPath "-t" text "-n" library "-o" (str default-output-path (gen-wav-name library text))))
 
 (defn get-library-list
   "SpeechSample.exeを実行し、結果から使用可能なTTSライブラリの一覧を取得する"
@@ -23,7 +33,10 @@
 
 (comment
   (def libraries (get-library-list))
+  libraries
   (talk "さとうささら" "さとうささらです")
+  
   (talk "葵" "さとうささらです")
+  (save-to-file "葵" "さとうささらです")
 
   )
