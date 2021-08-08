@@ -17,3 +17,4 @@ node_modules
 .vscode
 **/*.jpg
 /voices
+/output
