@@ -1,0 +1,11 @@
+default:
+  layer: 2
+  alias: alias/default.exo
+ゆかり:
+  layer: 10
+  alias: alias/yukari.exo
+  voice: ゆかり
+あかり:
+  layer: 14
+  alias: alias/akari.exo
+  voice: あかり
