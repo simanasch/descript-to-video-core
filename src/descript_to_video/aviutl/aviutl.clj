@@ -3,14 +3,21 @@
   (:require [clojure.java.io :as io]
             [clojure.string :only join]
             [descript-to-video.util.format :as formatter]
-            [instaparse.core :as insta]))
+            ;; [instaparse.core :as insta]
+            [yaml.core :as yaml]))
+
+(def default-settings-path "resources/settings.yaml")
+
+(defn- get-settings
+  []
+  (yaml/from-file default-settings-path))
 
 (defn get-template
-  "paramに対応するaviUtlのオブジェクトのファイル名を返す
-   TODO:ファイル名を設定ファイルとかディレクトリ内のalias名から取得するようにする"
-  [template]
-  (cond (= template "hoge") "fuga"
-        :else "resources/alias/default.exo"))
+  "paramに対応するaviUtlのオブジェクトのファイル名を返す"
+  [^String templateName]
+  (let [settings (get-settings)
+        setting (get settings (keyword templateName) (:default settings))]
+    (:alias setting)))
 
 (defn set-object-body
   "TODO:Mapを使った実装にする?"
