@@ -1,12 +1,12 @@
 # descript-to-video
 
-FIXME: description
+plaintextやmarkdown形式のテキストから各種TTSライブラリを使用した動画に変換する
 
-## Installation
+## インストール
 
 Download from http://example.com/FIXME.
 
-## Usage
+## 使い方
 
 FIXME: explanation
 
@@ -16,13 +16,13 @@ FIXME: explanation
 
 FIXME: listing of options this app accepts.
 
-## Examples
+## 例
 
 ...
 
-### Bugs
+### 既知のバグ
 
-...
+**このプロジェクトはpre-alphaです**
 
 ### Any Other Sections
 ### That You Think
@@ -30,7 +30,9 @@ FIXME: listing of options this app accepts.
 
 ## License
 
-Copyright © 2021 FIXME
+EPL 2.0準拠です
+
+Copyright © 2021 simana
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
