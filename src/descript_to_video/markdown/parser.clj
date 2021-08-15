@@ -1,24 +1,29 @@
 (ns descript-to-video.markdown.parser
-  (:gen-class)
-  (:import (com.vladsch.flexmark.util.ast Node)
-           (com.vladsch.flexmark.html HtmlRenderer)
-           (com.vladsch.flexmark.parser Parser)
-           (com.vladsch.flexmark.util.data MutableDataSet)))
+  (:require [clojure.string :as s]))
+
+;; TODO:configファイルから取得するようにする
+(def separator "＞")
+
+(defn get-voiceroid-text-lines
+  [text]
+  (map 
+   #(s/split (s/trim %) (re-pattern separator)) 
+   (filter 
+    #(s/includes? % separator) 
+    (s/split-lines text))))
+
+(defn get-body-text-lines
+  [text]
+  (filter 
+   #(not (s/includes? % separator))
+   (s/split-lines text)))
 
 (comment
-  ;;  https://github.com/vsch/flexmark-java のサンプルから引用
-  (def options (new MutableDataSet))
   
-
-  (def parser (. (. Parser builder options) build))
-
-
-;; HtmlRender
-  (def renderer (. (. HtmlRenderer builder options) build))
-
-
-  (def document (. parser parse "This is *Sparta*"))
-
-  (println (. renderer render document))
+  (def raw-text (slurp "resources/manuscripts/sample.md"))
+  (println raw-text)
+  (map #(s/split % #"＞") (filter #(s/includes? % "＞") (s/split-lines raw-text)))
+  (get-voiceroid-text-lines raw-text)
+  (get-body-text-lines raw-text)
   )
 
