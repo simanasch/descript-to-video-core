@@ -13,6 +13,6 @@
   ;; 以下動作確認してる時のサンプル
   (def lib-text  (mdparser/get-voiceroid-text-lines (slurp "resources/manuscripts/sample.md")))
   (first lib-text)
-  (tts/talk (first lib-text) (rest lib-text))
+  (tts/talk (first (first lib-text)) (rest (first lib-text)))
   (map #(tts/save-to-file (first %)  (rest %)) lib-text)
   )
