@@ -8,7 +8,7 @@ Download from http://example.com/FIXME.
 
 ## 使い方
 
-FIXME: explanation
+javaの実行環境が必要です
 
     $ java -jar descript-to-video-0.1.0-standalone.jar [args]
 
@@ -27,6 +27,28 @@ FIXME: listing of options this app accepts.
 ### Any Other Sections
 ### That You Think
 ### Might be Useful
+
+## Motivation
+解説動画を楽して作りたい、原稿ファイル一つ用意してバッチに投げ込んだらとりあえずスライドショーに音声がついてる程度の動画ができてるといいのでは?
+## TODO
+ - [x] markdonwから音声を一括保存する
+ - [ ] 対応しているテキストのフォーマットを増やす
+ - [ ] 呼び出し元を追加する(少なくともターミナルはNG)
+   - [ ] aviutl拡張?
+   - [ ] batchfile?
+   - [ ] ごちゃまずドロップス拡張?
+ - [ ] markdownと拡張編集オブジェクトファイルの相互変換
+   - [ ] 拡張編集のオブジェクトごとにaliasを作る
+ - [ ] 依存関係の整理
+   - [ ] 依存先のリポジトリをこっちに含める?
+ - [ ] aviutl以外への対応
+   - [ ] やるならDaVinchi Resolve
+ - [ ] ttsController呼び出しをいい感じにする
+   - [ ] grpc使うとか
+ - [ ] テストの追加
+ - [ ] エラーハンドリングをちゃんとやる
+ - [ ] テンプレートを使えるようにする
+ - [ ] 設定変更にUIをつける
 
 ## License
 
