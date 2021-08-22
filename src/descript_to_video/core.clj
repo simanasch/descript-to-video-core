@@ -8,8 +8,9 @@
 (defn -main
   [& args]
   (apply println "Received args:" args)
-  (let [;; targetPath (read-line)
-        lib-text  (mdparser/get-voiceroid-text-lines (slurp "E://Documents/descript-to-video/resources/manuscripts/sample.md"))]
+  (let [targetPath (read-line)
+        ;; "E://Documents/descript-to-video/resources/manuscripts/sample.md"
+        lib-text  (mdparser/get-voiceroid-text-lines (slurp targetPath))]
     ;; tts/save-to-fileは別スレッドを立ち上げるのでdoAllで実行待機させる
     (doall (map #(tts/save-to-file (first %)  (rest %)) lib-text))
     (println "result:" lib-text)
