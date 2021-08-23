@@ -1,1 +1,2 @@
-*.exo eol=crlf working-tree-encoding=shift-jis
+*.exa eol=crlf working-tree-encoding=sjis
+*.exo eol=crlf working-tree-encoding=sjis
