@@ -23,5 +23,10 @@
   (def raw-object (slurp "./resources/alias/default.exo" :encoding "shift-jis"))
   (def parsed-object (object-parser raw-object))
   (clojure.pprint/pprint parsed-object)
+  (insta/transform {:exedit str
+                    :object str
+                    :property #(str (second %1) "=" (second %2))
+                    ;; :property (comp clojure.edn/read-string str)
+                    } parsed-object )
   parsed-object
   )
