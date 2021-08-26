@@ -1,7 +1,8 @@
 (ns descript-to-video.tts
   (:require [clojure.java.shell :as shell]
             [clojure.string :as s]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [descript-to-video.util.date :as d]))
 
 ;; 定数群
 ;; TODO:設定ファイルから取得
@@ -30,17 +31,19 @@
   (let [ag (agent library)]
     (send-off ag #(talk %1 %2) text)))
 
-(defn gen-wav-name
+(defn gen-file-name
   [library text]
-  (str library "_" text ".wav"))
+  (str (d/get-time-stamp) "_" library "_" text))
 
 (defn save-to-file
   [library text]
   (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
-        outFileName (str default-output-path (gen-wav-name library joinedText)) ]
-    (io/make-parents outFileName)
-    (println outFileName)
-    (shell/sh "cmd" "/c" ttsControllerPath "-t" joinedText "-n" library "-o" outFileName)))
+        filepath (str default-output-path (gen-file-name library joinedText))
+        wavFileName (str filepath ".wav")
+        textFileName (str filepath ".txt")]
+    (io/make-parents wavFileName)
+    (spit textFileName joinedText :encoding "shift-jis")
+    (shell/sh "cmd" "/c" ttsControllerPath "-t" joinedText "-n" library "-o" wavFileName)))
 
 (defn save-to-file-agent
   [library text]

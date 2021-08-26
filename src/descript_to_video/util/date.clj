@@ -2,6 +2,6 @@
 
 (def date-format (java.text.SimpleDateFormat. "YYMMddHHmmssSSS"))
 
-(defn getTimeStamp
+(defn get-time-stamp
   []
   (.format date-format (new java.util.Date)))
