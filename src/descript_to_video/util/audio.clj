@@ -5,12 +5,12 @@
 (defn get-wav-length
   [path frameRate]
   (try
-    (let [wavFile (io/as-file path)
-          wavStream (AudioSystem/getAudioInputStream wavFile)]
+    (with-open [fileStream (io/input-stream path)
+                wavStream (AudioSystem/getAudioInputStream fileStream)]
       (int
        (/
         (* frameRate (.getFrameLength wavStream))
         (.getSampleRate (.getFormat wavStream)))))
-    (catch Exception e 
-      (println (str "caught exception: " (.getMessage e)))
+    (catch Exception e
+      (println "caught Exception:" (str (.getMessage e)))
       0)))
