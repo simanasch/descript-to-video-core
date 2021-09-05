@@ -18,3 +18,5 @@ node_modules
 **/*.jpg
 /voices
 /output
+/sample/*
+!/sample/sample.md
