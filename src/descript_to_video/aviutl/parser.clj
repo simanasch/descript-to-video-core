@@ -1,32 +1,51 @@
 (ns descript-to-video.aviutl.parser
-  (:require [instaparse.core :as insta]))
+  (:require
+   [clojure.string :as s]
+   [yaml.core :as yaml]))
 
-(def object-parser
-  (insta/parser
-   "S = exedit object+ 
-      exedit = #'\\[exedit\\]\r\n' property+
-      property = name <'='> value  <CRLF>
-      name = #'[^\\[=]+'
-      value = #'.+'
-      <CRLF> = #'\r\n' 
-      object = <'['> layer <']'> <CRLF> property+ effect* object | Epsilon
-      effect = <'['> layer <'.'> order <']'> CRLF property+
-      layer = #'\\d+'
-      order = #'\\d+'
-      "))
+(defn indent
+  "aviutlのobject形式のstringをyamlでparseできるようインデントする"
+  [string]
+  (loop [lines (s/split-lines string)
+         nest ""
+         result '[]]
+    (if
+     (nil? (first lines)) (s/join "\r\n" result)
+     (let [line (first lines)
+           match (re-matches #"\[\w+\]" line)]
+       (cond
+        ;;  [exedit]か[{レイヤー番号}]を含む行の場合
+         (not= nil match) (recur (rest lines) "  " (conj result line))
+        ;;  オプション定義の行の場合
+         (s/includes? line "[") (recur (rest lines) "    " (conj result (str nest line)))
+         ;; それ以外の場合、nestの値そのままでもう一度コール
+         :else (recur (rest lines) nest (conj result (str nest line))))))))
+
+(defn aviutl-obj->yaml
+  "aviutlのobjectをyaml形式でparseする"
+  [text]
+  (->
+   text
+   (indent)
+   (s/replace "[" "\"")
+   (s/replace "]" "\": ")
+   (s/replace "=" ": ")
+   (yaml/parse-string)))
+
+;; (defn yaml->aviutl-object
+;;   [yamlMap]
+;;   (loop [element yamlMap]
+;;     (if (map? element) )
+;;     ))
 
 (comment
-  (def raw-project-file (slurp "E:/Documents/descript-to-video/output/template.exo" :encoding "shift-jis"))
-  (def objects (clojure.string/split raw-project-file #"\]\r\n"))
-  (nth objects 3)
 
-  (def raw-object (slurp "./resources/alias/default.exo" :encoding "shift-jis"))
-  (def parsed-object (object-parser raw-object))
-  (clojure.pprint/pprint parsed-object)
-  (insta/transform {:exedit str
-                    :object str
-                    :property #(str (second %1) "=" (second %2))
-                    ;; :property (comp clojure.edn/read-string str)
-                    } parsed-object )
-  parsed-object
+  (def raw-object (slurp "./sample/sample.exo" :encoding "shift-jis"))
+  (def parsed  (aviutl-obj->yaml raw-object))
+  (:1.0 (:1 parsed))
+  (into '[] parsed)
+  (map #(s/trim %) parsed)
+  (indent raw-object)
+  (aviutl-obj->yaml raw-object)
+  (reduce #(str %1 %2) parsed)
   )
