@@ -12,6 +12,9 @@
   []
   (yaml/from-file default-settings-path))
 
+(def prefix "<?s=[==[\r\n")
+(def suffix "\r\n]==];require(\"PSDToolKit\").prep.init({ls_mgl=0,ls_mgr=0,st_mgl=0,st_mgr=0,sl_mgl=0,sl_mgr=0,},obj,s)?>")
+
 (defn get-template
   "paramに対応するaviUtlのオブジェクトのファイル名を返す"
   [^String templateName]
@@ -23,7 +26,7 @@
   "TODO:Mapを使った実装にする?"
   [body key seq]
   (map
-   #(if (= %1 key) (str %1 (formatter/string->padded-hex body)) %1) ;;
+   #(if (= %1 key) (str %1 (formatter/string->padded-hex (str prefix body suffix))) %1)
    seq))
 
 (defn gen-object
