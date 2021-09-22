@@ -20,3 +20,4 @@ node_modules
 /output
 /sample/*
 !/sample/sample.md
+.clj-kondo
