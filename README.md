@@ -2,6 +2,18 @@
 
 plaintextやmarkdown形式のテキストから各種TTSライブラリを使用した動画に変換する
 
+# ツールの構成
+* yarn
+* marp(markdown->スライドの変換に利用)
+  * standalone版にしたほうがよいか?
+    * →してた サンプル以下(1920*1080)
+    * yarn marp --image-scale 1.5 --images png -o E://Videos/VoiceroidWaveFiles/  resources/slides/template/template.md
+* tts-controller(テキストから音声合成エンジンを呼び出すのに使用)
+  * ->各種音声合成エンジン
+* このツール本体(markdownのparse、aviutlで使用できるobjファイルのエクスポートに利用)
+* aviutl+拡張編集プラグイン(今のところは)
+  * そのうち他ツール対応させたい(DaVinchiとか)
+
 ## インストール
 
 Download from http://example.com/FIXME.
@@ -20,6 +32,17 @@ FIXME: listing of options this app accepts.
 
 ...
 
+## 動作のしくみ
+* marpでmarkdownからスライドを出力
+* clojureでmarkdownからttsで読み上げする内容の含まれている行を取得
+  * 先頭行から順にテキスト内容をspeechSampleを使用して出力
+  * かんしくんを使用してaviutlのタイムラインに順次追加
+<!-- 
+この状態だと音声のみ追加されている状態のはず
+スライドをタイムラインに追加する処理が必要
+立ち絵もこの状態ではないはず? 
+markdown(テキスト+順序情報)+デフォルト値で動画にする
+-->
 ### 既知のバグ
 
 **このプロジェクトはpre-alphaです**
@@ -33,14 +56,18 @@ FIXME: listing of options this app accepts.
 ## TODO
  - [x] markdonwから音声を一括保存する
  - [ ] 対応しているテキストのフォーマットを増やす
+   - [ ] markdown
  - [ ] 呼び出し元を追加する(少なくともターミナルはNG)
    - [ ] aviutl拡張?
    - [ ] batchfile?
    - [ ] ごちゃまぜドロップス拡張?
- - [ ] markdownと拡張編集オブジェクトファイルの相互変換
-   - [ ] 拡張編集のオブジェクトごとにaliasを作る
+ - [x] markdownと拡張編集オブジェクトファイルの相互変換
+   - [x] できました(yamlと相互変換)
+   - [x] 拡張編集のオブジェクトごとにaliasを作る
+     - [x] aliasだと立ち絵関係に対応できないのでテンプレの.obj
  - [ ] 依存関係の整理
    - [ ] 依存先のリポジトリをこっちに含める?
+   - [ ] →git-submodule
  - [ ] aviutl以外への対応
    - [ ] やるならDaVinchi Resolve
  - [ ] ttsController呼び出しをいい感じにする
