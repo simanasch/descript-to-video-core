@@ -27,6 +27,7 @@
   [text]
   (->
    text
+   (s/escape { \" "\\\"", \\ "\\\\" })
    (s/replace "[" "\"")
    (s/replace "]" "\": ")
    (s/replace #"=(.*)" ": \"$1\"")))
@@ -87,11 +88,14 @@
   ;; 動作確認に使っているスニペット系
   ;; TODO:テストに移す
   (def raw-object (slurp "./sample/sample.exo" :encoding "shift-jis"))
+  (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   ;; sample-yamlとparsedは一致する(はず)
   ;; sample-yamlは
   (def sample-yaml (yaml/from-file "./sample/sample.yaml"))
   (def parsed (aviutl-object->yaml raw-object))
+  (def parsed2 (aviutl-object->yaml raw-dest))
   (= sample-yaml parsed)
+  (spit "../tmp.txt" (yaml->aviutl-object parsed2) :encoding "shift-jis")
   ;; get-nested-keysのテスト
   (get-nested-keys (:0.1 (:0 sample-yaml)) '())
   (get-nested-keys (:1 sample-yaml) '[])
@@ -105,7 +109,6 @@
 
   (println (s/join "\r\n" (aviutl-object->yaml raw-object)))
   (yaml/parse-string (s/join "\r\n" (aviutl-object->yaml raw-object)))
-  (format-aviutl-line-to-yaml "拡大率=100.00")
   (format-aviutl-line-to-yaml "param=")
   (get-keyval "color2=000000")
   (repeat 1 "hoge")
