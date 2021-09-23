@@ -1,0 +1,15 @@
+[vo]
+length=34
+camera=0
+[vo.0]
+_name=画像ファイル
+file=E:¥Documents¥descript-to-video¥resources¥slides¥template¥template.001.png
+[vo.1]
+_name=標準描画
+X=0.0
+Y=0.0
+Z=0.0
+拡大率=150.00
+透明度=0.0
+回転=0.00
+blend=0

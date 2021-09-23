@@ -1,0 +1,14 @@
+{
+  "name": "descript-to-video",
+  "version": "1.0.0",
+  "author": "simana",
+  "license": "Eclipse Public License - v 2.0",
+  "private": true,
+  "scripts": {
+    "dev": "marp --html --server .",
+    "build": "marp --html --pdf --allow-local-files --title 'スライドのタイトル' slide.md -o ./slide.pdf"
+  },
+  "dependencies": {
+    "@marp-team/marp-cli": "^1.1.1"
+  }
+}

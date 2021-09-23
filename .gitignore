@@ -15,3 +15,9 @@ pom.xml.asc
 .calva/
 node_modules
 .vscode
+**/*.jpg
+/voices
+/output
+/sample/*
+!/sample/sample.md
+.clj-kondo

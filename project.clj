@@ -6,8 +6,12 @@
   :plugins [[lein-clr "0.2.2"]]
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1"]
+                 [io.forward/yaml "1.0.10"]
+                 [org.clojure/core.async "1.3.618"]
+                ;;  [com.vladsch.flexmark/flexmark-all "0.62.2"]
                  [instaparse "1.4.10"]]
-  :main ^:skip-aot descriptToVideo.core
+  ;; :repositories [["com.vladsch.flexmark/flexmark-java" "https://github.com/vsch/flexmark-java"]]
+  :main ^:skip-aot descript-to-video.core
   :target-path "target/%s"
   :profiles {} 
   :clr {:cmd-templates  {:clj-dep   [[?PATH "mono"] ["target/default/clr/clj/Debug 4.0" %1]]
