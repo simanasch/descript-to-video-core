@@ -47,8 +47,7 @@
 
 (defn save-to-files
   [ttslist]
-  (doall (map #(save-to-file (first %) (rest %)) ttslist))
-  (shutdown-agents))
+  (doall (map #(save-to-file (first %) (rest %)) ttslist)))
 
 (defn save-to-file-agent
   [library text]

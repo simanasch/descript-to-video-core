@@ -13,6 +13,7 @@
         lib-text  (mdparser/get-voiceroid-text-lines (slurp targetPath))]
     (println "result:" lib-text)
     (tts/save-to-files lib-text)
+    (shutdown-agents)
   ))
 
 (comment
