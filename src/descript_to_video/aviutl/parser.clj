@@ -24,20 +24,26 @@
                 {(keyword key) (str val)})))
 
 (defn- format-aviutl-line-to-yaml
+  "aviutlの.objの行に対して、yamlのタグとして読めるよう整形する"
   [text]
   (->
    text
+  ;;  パスのエスケープ
    (s/escape { \" "\\\"", \\ "\\\\" })
+  ;;  objectの通し番号の整形
    (s/replace "[" "\"")
    (s/replace "]" "\": ")
+  ;;  設定値の整形、値をダブルクォートで囲む
    (s/replace #"=(.*)" ": \"$1\"")))
 
-(defn- format-aviutl-object->yaml [text]
+(defn format-aviutl-object->yaml
+  "aviutlの.obj形式のテキストをyamlとして読める形式のテキストにして返す"
+  [text]
   (loop [lines (s/split-lines text)
          nest '[]
          result '[]]
     (cond
-      (empty? lines) result
+      (empty? lines) (s/join "\r\n" result)
       :else
       (let [line (first lines)
             lv (get-level line nest)
@@ -50,8 +56,10 @@
          lv
          (conj result (str (s/join "" (repeat indent "  ")) (format-aviutl-line-to-yaml line))))))))
 
-(defn aviutl-object->yaml [text]
-  (yaml/parse-string (s/join "\r\n" (format-aviutl-object->yaml text))))
+(defn aviutl-object->yaml
+  "aviutlの.obj形式のテキストをyamlに変換し,yamlとしてパースした結果のordered-mapを返す"
+  [text]
+  (yaml/parse-string (format-aviutl-object->yaml text)))
 
 (defn- format-key [symbol]
   (str "[" (name symbol) "]"))
@@ -76,6 +84,7 @@
                (conj temp first-keys))))))
 
 (defn yaml->aviutl-object
+  "yamlのmapをaviutlのobject形式にして返す"
   [mp]
   (letfn [(format-keyval
             [mp keys]
