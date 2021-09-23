@@ -9,19 +9,18 @@
   [& args]
   (apply println "Received args:" args)
   (let [targetPath (read-line)
-        ;; "E://Documents/descript-to-video/resources/manuscripts/sample.md"
+        ;; "E://Documents/descript-to-video/sample/sample.md"
         lib-text  (mdparser/get-voiceroid-text-lines (slurp targetPath))]
-    ;; tts/save-to-fileは別スレッドを立ち上げるのでdoAllで実行待機させる
-    (doall (map #(tts/save-to-file (first %)  (rest %)) lib-text))
     (println "result:" lib-text)
-    ;; tts/save-to-fileで立ち上げたスレッドを落とす
-    (shutdown-agents)))
+    (tts/save-to-files lib-text)
+  ))
 
 (comment
   ;; 以下動作確認してる時のサンプル
   (def lib-text  (mdparser/get-voiceroid-text-lines (slurp "E://Documents/descript-to-video/resources/manuscripts/sample.md")))
   lib-text
   (first lib-text)
+  (-main)
   (tts/talk (first (first lib-text)) (rest (first lib-text)))
   (for [sentence lib-text
         :let [library (first sentence)

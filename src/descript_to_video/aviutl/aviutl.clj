@@ -3,7 +3,6 @@
   (:require [clojure.java.io :as io]
             [clojure.string :only join]
             [descript-to-video.util.format :as formatter]
-            ;; [instaparse.core :as insta]
             [yaml.core :as yaml]))
 
 (def default-settings-path "resources/settings.yaml")
