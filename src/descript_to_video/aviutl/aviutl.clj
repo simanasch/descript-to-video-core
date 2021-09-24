@@ -36,3 +36,11 @@
               o (io/writer "test.exo" :encoding "shift-jis")]
     (doseq [body (reduce conj [] (set-object-body text "text=" (line-seq r)))]
       (.write o (str body "\r\n")))))
+
+;; 動作確認用のスクリプト類
+;; TODO:テストに移動
+(comment
+  (get-template "ゆかり")
+  (slurp (get-template "ゆかり") :encoding "shift-jis")
+  (gen-object "ゆかりさんです" "ゆかり")
+  )
