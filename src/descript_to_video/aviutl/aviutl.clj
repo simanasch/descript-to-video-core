@@ -1,9 +1,13 @@
 (ns descript-to-video.aviutl.aviutl
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [clojure.string :only join]
+            [clojure.string :as s]
             [descript-to-video.util.format :as formatter]
-            [yaml.core :as yaml]))
+            [descript-to-video.util.map :as m]
+            [descript-to-video.aviutl.parser :as parser]
+            [yaml.core :as yaml])
+  (:refer  flatland.ordered.map))
+;; (:refer clojure.edn)
 
 (def default-settings-path "resources/settings.yaml")
 
@@ -37,10 +41,37 @@
     (doseq [body (reduce conj [] (set-object-body text "text=" (line-seq r)))]
       (.write o (str body "\r\n")))))
 
+(defn copy-from-object-as-ordered-map
+  "templateをコピーし、新しいobjectを生成して返す
+   updates:更新内容のordered-map"
+  [updates templateName]
+  (let [template (get-template templateName)
+        templateObject (parser/aviutl-object->yaml (slurp template :encoding "shift-jis"))]
+    ;; (println templateObject)
+    (m/deep-merge-with
+     (fn [v1 v2] (cond (nil? v2) v1 :else v2))
+     templateObject updates)))
+
+(defn get-slide-object-as-ordered-map
+  [path start end]
+  (copy-from-object-as-ordered-map
+   (ordered-map {:0 {:start start
+                     :end end
+                     :0.0 (ordered-map {:file path})}})
+   "slide"))
+
 ;; 動作確認用のスクリプト類
 ;; TODO:テストに移動
 (comment
   (get-template "ゆかり")
   (slurp (get-template "ゆかり") :encoding "shift-jis")
   (gen-object "ゆかりさんです" "ゆかり")
+  ;; (parser/aviutl-object->yaml)
+  (def replaced (copy-from-object-as-ordered-map '[{:keys [:0 :0.0 :_name] :value "hoge"} {:keys [:0 :start] :value "300"} {:keys [:0 :end] :value "600"}] "slide"))
+  (:start (:0  replaced))
+  (:0.0 (:0 (copy-from-object-as-ordered-map {} "slide")))
+  (def raw-slide-template (parser/aviutl-object->yaml (slurp (get-template "slide") :encoding "shift-jis")))
+  (def update-map (ordered-map {:0 {:start "300" :end "600" :0.0 (ordered-map {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"})}}))
+  (println (parser/yaml->aviutl-object raw-slide-template))
+  (get-slide-object-as-ordered-map (s/escape "E:\\Videos\\VoiceroidWaveFiles.002.png" { \" "\\\"", \\ "\\\\" })  "300" "600")
   )
