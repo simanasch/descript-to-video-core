@@ -9,3 +9,6 @@ default:
   layer: 14
   alias: resources/alias/akari.exo
   voice: あかり
+slide:
+  layer: 2
+  alias: resources/alias/slide_template.exo
