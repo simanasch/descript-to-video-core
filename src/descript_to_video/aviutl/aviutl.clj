@@ -1,7 +1,7 @@
 (ns descript-to-video.aviutl.aviutl
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [clojure.string :as s]
+            [clojure.walk :as w]
             [descript-to-video.util.format :as formatter]
             [descript-to-video.util.map :as m]
             [descript-to-video.aviutl.parser :as parser]
@@ -52,12 +52,17 @@
      (fn [v1 v2] (cond (nil? v2) v1 :else v2))
      templateObject updates)))
 
+(defn map->ordered-map
+  [map]
+  (w/postwalk #(cond (map? %) (ordered-map %) :else %) map))
+
 (defn get-slide-object-as-ordered-map
   [path start end]
   (copy-from-object-as-ordered-map
-   (ordered-map {:0 {:start start
-                     :end end
-                     :0.0 (ordered-map {:file path})}})
+   (map->ordered-map
+    {:0 {:start start
+         :end end
+         :0.0 {:file path}}})
    "slide"))
 
 ;; 動作確認用のスクリプト類
@@ -67,11 +72,18 @@
   (slurp (get-template "ゆかり") :encoding "shift-jis")
   (gen-object "ゆかりさんです" "ゆかり")
   ;; (parser/aviutl-object->yaml)
-  (def replaced (copy-from-object-as-ordered-map '[{:keys [:0 :0.0 :_name] :value "hoge"} {:keys [:0 :start] :value "300"} {:keys [:0 :end] :value "600"}] "slide"))
+  (def slide-replace-map '{:0 {:start "0" :end "300" :0.0 {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"}}})
   (:start (:0  replaced))
   (:0.0 (:0 (copy-from-object-as-ordered-map {} "slide")))
   (def raw-slide-template (parser/aviutl-object->yaml (slurp (get-template "slide") :encoding "shift-jis")))
   (def update-map (ordered-map {:0 {:start "300" :end "600" :0.0 (ordered-map {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"})}}))
+  (apply into (ordered-map) '{:0 {:start "300" :end "600" :0.0 {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"}}})
   (println (parser/yaml->aviutl-object raw-slide-template))
-  (get-slide-object-as-ordered-map (s/escape "E:\\Videos\\VoiceroidWaveFiles.002.png" { \" "\\\"", \\ "\\\\" })  "300" "600")
+  (get-slide-object-as-ordered-map "E:\\Videos\\VoiceroidWaveFiles.002.png"  "300" "600")
+  (println (parser/yaml->aviutl-object (get-slide-object-as-ordered-map "E:\\Videos\\VoiceroidWaveFiles.002.png"  "300" "600")))
+  (m/deep-merge-with (fn [v1 v2] (println v1 v2) (cond (map? v2) (into (ordered-map) v2) :else v1)) '{:0 {:start "300" :end "600" :0.0 {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"}}})
+  (ordered-map slide-replace-map)
+  (clojure.walk/postwalk-demo slide-replace-map)
+  (def obj-postwalk (clojure.walk/postwalk #(cond (map? %) (ordered-map %) :else %) slide-replace-map))
+  (get-in (ordered-map {:0 {:start "0" :end "300" :0.0 (ordered-map {:file "E:\\Videos\\VoiceroidWaveFiles.002.png"})}}) '[:0 :0.0 :file])
   )
