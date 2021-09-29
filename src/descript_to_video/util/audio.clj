@@ -3,7 +3,7 @@
   (:import [javax.sound.sampled AudioSystem]))
 
 (defn get-wav-length
-  [path frameRate]
+  ([path frameRate]
   (try
     (with-open [fileStream (io/input-stream path)
                 wavStream (AudioSystem/getAudioInputStream fileStream)]
@@ -14,3 +14,4 @@
     (catch Exception e
       (println "caught Exception:" (str (.getMessage e)))
       0)))
+  ([path] (get-wav-length path 30)))
