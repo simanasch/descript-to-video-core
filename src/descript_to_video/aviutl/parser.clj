@@ -29,7 +29,7 @@
   (->
    text
   ;;  パスのエスケープ
-   (s/escape { \" "\\\"", \\ "\\\\" })
+   (s/escape {\" "\\\"", \\ "\\\\"})
   ;;  objectの通し番号の整形
    (s/replace "[" "\"")
    (s/replace "]" "\": ")
@@ -93,26 +93,56 @@
                     :else (format-level (last keys) val))))]
     (s/join "\r\n" (reduce #(conj %1 (format-keyval mp %2)) '[] (get-nested-keys mp '[])))))
 
+(defn conj-aviutl-map
+  "yamlになっているaviutlのmap2つを結合する"
+  [base add]
+  (loop [key (inc (Integer/parseInt (name (last (keys base)))))
+         keys-to-add (keys add)
+         result base]
+    ;; (println key keys-to-add)
+    (cond (empty? keys-to-add) result
+          :else
+          (recur
+           (inc key)
+           (rest keys-to-add)
+          ;;  オブジェクトの通し番号とオプションに含まれる通し番号が一致しないので要成形
+           (assoc result (keyword (str key)) (get add (first keys-to-add)))))))
+
+(defn sort-aviutl-object-keys
+  "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
+  [aviutl-object-map]
+  (letfn [(sort-by-layer-start
+            [x y]
+            (let [layer-x (get-in aviutl-object-map [x :layer])
+                  layer-y (get-in aviutl-object-map [y :layer])]
+              (println "comparing:" x y layer-x layer-y)
+              (cond (= layer-x layer-y) (compare (get-in aviutl-object-map [x :start]) (get-in aviutl-object-map [y :start]))
+                    :else (compare (get-in aviutl-object-map [x :layer]) (get-in aviutl-object-map [y :layer])))))]
+    (sort
+     sort-by-layer-start
+     (keys aviutl-object-map))))
+
 (comment
   ;; 動作確認に使っているスニペット系
   ;; TODO:テストに移す
+  (def sample-map (aviutl-object->yaml (slurp "./sample/sample.exo" :encoding "shift-jis")))
+  (def sample-slide1 (aviutl-object->yaml (slurp "./sample/slide_template.exo" :encoding "shift-jis")))
+  (def sample-slide2 (aviutl-object->yaml (slurp "./output/slide2.exo" :encoding "shift-jis")))
   (def raw-object (slurp "./sample/sample.exo" :encoding "shift-jis"))
-  (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   ;; sample-yamlとparsedは一致する(はず)
-  ;; sample-yamlは
+  (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   (def sample-yaml (yaml/from-file "./sample/sample.yaml"))
-  (def parsed (aviutl-object->yaml raw-object))
   (def parsed2 (aviutl-object->yaml raw-dest))
-  (= sample-yaml parsed)
+  (= sample-yaml sample-map)
   (spit "../tmp.txt" (yaml->aviutl-object parsed2) :encoding "shift-jis")
   ;; get-nested-keysのテスト
   (get-nested-keys (:0.1 (:0 sample-yaml)) '())
   (get-nested-keys (:1 sample-yaml) '[])
   (get-nested-keys sample-yaml '[])
 
-  (map list (keys parsed))
-  (map #(list :exedit %) (keys (get-in parsed '(:exedit))))
-  (map #(get-in sample-yaml %) (map #(list :exedit %) (keys (get-in parsed '(:exedit)))))
+  (map list (keys sample-map))
+  (map #(list :exedit %) (keys (get-in sample-map '(:exedit))))
+  (map #(get-in sample-yaml %) (map #(list :exedit %) (keys (get-in sample-map '(:exedit)))))
   (reverse (cons (first (keys (get-in sample-yaml '(:0 :0.1)))) '(:0.1)))
   (reverse (concat (first (keys (get-in sample-yaml '(:0 :0.1)))) '(:0.1)))
 
@@ -122,10 +152,27 @@
   (get-keyval "color2=000000")
   (repeat 1 "hoge")
   (s/replace "_name=標準描画"  #"=(.+)" ": \"$1\"")
+  (def added (conj-aviutl-map sample-map sample-slide1))
+  (keyword (str 2))
+  (keys added)
+  (get-in added [:0 :layer])
+  (get-in added [:1 :layer])
+  (Integer/parseInt (get-in added [:2 :layer]))
+  (apply #(Integer/parseInt %) "121")
+  (def sorted (sort-by (juxt :layer :start) (dissoc added :exedit)))
+  (first   sorted)
+  (println sorted)
+  (seq? sorted)
+  (map (fn [key] {key (get-in added [key :layer])}) (keys added))
+  (sort-by
+   (fn
+     [key]
+     (let [layer (get-in added [key :layer])
+           start (get-in added [key :start])]
+      ;;  (println key layer start)
+       layer))
+   (keys added))
+  (sort-aviutl-object-keys added)
 
-  (get-level "hoge" '[]) ;;expected:0
-  (count (get-level "hoge" '[:0]))
-  (get-level "[1]" '[:0])
-  (get-level "[1.41]" '[:0])
-  (get-level "_name=標準描画" '[:0])
-  )
+  (spit "./output/sorted.exo" (yaml->aviutl-object added) :encoding "shift-jis")
+  (keys sorted))
