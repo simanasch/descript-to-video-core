@@ -1,7 +1,9 @@
 (ns descript-to-video.aviutl.parser
   (:require
    [clojure.string :as s]
-   [yaml.core :as yaml]))
+   [yaml.core :as yaml]
+   [descript-to-video.util.map :as m])
+  (:refer  flatland.ordered.map))
 
 (defn- get-level
   "aviutlのオブジェクトについて、ネストの階層を返す"
@@ -108,19 +110,28 @@
           ;;  オブジェクトの通し番号とオプションに含まれる通し番号が一致しないので要成形
            (assoc result (keyword (str key)) (get add (first keys-to-add)))))))
 
-(defn sort-aviutl-object-keys
+(defn sort-aviutl-object-map
   "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
   [aviutl-object-map]
   (letfn [(sort-by-layer-start
             [x y]
             (let [layer-x (get-in aviutl-object-map [x :layer])
                   layer-y (get-in aviutl-object-map [y :layer])]
-              (println "comparing:" x y layer-x layer-y)
+              ;; (println "comparing:" x y layer-x layer-y)
               (cond (= layer-x layer-y) (compare (get-in aviutl-object-map [x :start]) (get-in aviutl-object-map [y :start]))
                     :else (compare (get-in aviutl-object-map [x :layer]) (get-in aviutl-object-map [y :layer])))))]
-    (sort
-     sort-by-layer-start
-     (keys aviutl-object-map))))
+    (loop [keys (sort
+                 sort-by-layer-start
+                 (keys aviutl-object-map))
+           object-serial-number 0
+           result (m/map->ordered-map {:exedit (:exedit aviutl-object-map)})]
+      (let [key (first keys)
+            key-serial-number (try (Integer/parseInt (name key)) (catch Exception e nil))
+            key-for-sorted (keyword (str object-serial-number))]
+        ;; (println key)
+        (cond (empty? keys) result
+              (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
+              :else (recur (rest keys) (inc object-serial-number) (assoc result key-for-sorted (get aviutl-object-map key))))))))
 
 (comment
   ;; 動作確認に使っているスニペット系
@@ -128,7 +139,7 @@
   (def sample-map (aviutl-object->yaml (slurp "./sample/sample.exo" :encoding "shift-jis")))
   (def sample-slide1 (aviutl-object->yaml (slurp "./sample/slide_template.exo" :encoding "shift-jis")))
   (def sample-slide2 (aviutl-object->yaml (slurp "./output/slide2.exo" :encoding "shift-jis")))
-  (def raw-object (slurp "./sample/sample.exo" :encoding "shift-jis"))
+  (def added (conj-aviutl-map sample-map sample-slide1))
   ;; sample-yamlとparsedは一致する(はず)
   (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   (def sample-yaml (yaml/from-file "./sample/sample.yaml"))
@@ -143,20 +154,12 @@
   (map list (keys sample-map))
   (map #(list :exedit %) (keys (get-in sample-map '(:exedit))))
   (map #(get-in sample-yaml %) (map #(list :exedit %) (keys (get-in sample-map '(:exedit)))))
-  (reverse (cons (first (keys (get-in sample-yaml '(:0 :0.1)))) '(:0.1)))
-  (reverse (concat (first (keys (get-in sample-yaml '(:0 :0.1)))) '(:0.1)))
-
-  (println (s/join "\r\n" (aviutl-object->yaml raw-object)))
-  (yaml/parse-string (s/join "\r\n" (aviutl-object->yaml raw-object)))
-  (format-aviutl-line-to-yaml "param=")
-  (get-keyval "color2=000000")
-  (repeat 1 "hoge")
-  (s/replace "_name=標準描画"  #"=(.+)" ": \"$1\"")
-  (def added (conj-aviutl-map sample-map sample-slide1))
-  (keyword (str 2))
-  (keys added)
-  (get-in added [:0 :layer])
-  (get-in added [:1 :layer])
+  (def sorted-added (sort-aviutl-object-map added))
+  (:exedit sorted-added)
+  (keys sorted-added)
+  (get-in sorted-added [:0 :layer])
+  (get-in sorted-added [:1 :layer])
+  (get-in sorted-added [:2 :layer])
   (Integer/parseInt (get-in added [:2 :layer]))
   (apply #(Integer/parseInt %) "121")
   (def sorted (sort-by (juxt :layer :start) (dissoc added :exedit)))
@@ -172,7 +175,9 @@
       ;;  (println key layer start)
        layer))
    (keys added))
-  (sort-aviutl-object-keys added)
+  (sort-aviutl-object-map added)
+  (keyword "0")
 
   (spit "./output/sorted.exo" (yaml->aviutl-object added) :encoding "shift-jis")
-  (keys sorted))
+  (keys sorted)
+  )
