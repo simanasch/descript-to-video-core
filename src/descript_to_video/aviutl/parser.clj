@@ -110,6 +110,17 @@
           ;;  オブジェクトの通し番号とオプションに含まれる通し番号が一致しないので要成形
            (assoc result (keyword (str key)) (get add (first keys-to-add)))))))
 
+(defn rename-effect-keys
+  [obj key]
+  (reduce-kv
+   (fn [m k v]
+     (let [serial (name key)
+           effect-key (name k)]
+        ;;  (println k)
+       (cond (map? v) (assoc m (keyword (s/replace-first effect-key #"\w+?" serial)) v)
+             :else (assoc m k v))))
+   (ordered-map) obj))
+
 (defn sort-aviutl-object-map
   "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
   [aviutl-object-map]
@@ -131,7 +142,7 @@
         ;; (println key)
         (cond (empty? keys) result
               (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
-              :else (recur (rest keys) (inc object-serial-number) (assoc result key-for-sorted (get aviutl-object-map key))))))))
+              :else (recur (rest keys) (inc object-serial-number) (assoc result key-for-sorted (rename-effect-keys (get aviutl-object-map key) key-for-sorted))))))))
 
 (comment
   ;; 動作確認に使っているスニペット系
@@ -155,6 +166,8 @@
   (map #(list :exedit %) (keys (get-in sample-map '(:exedit))))
   (map #(get-in sample-yaml %) (map #(list :exedit %) (keys (get-in sample-map '(:exedit)))))
   (def sorted-added (sort-aviutl-object-map added))
+  (keys (:2 sorted-added))
+  (keys (rename-effect-keys (:2 sorted-added) :2))
   (:exedit sorted-added)
   (keys sorted-added)
   (get-in sorted-added [:0 :layer])
@@ -179,5 +192,4 @@
   (keyword "0")
 
   (spit "./output/sorted.exo" (yaml->aviutl-object added) :encoding "shift-jis")
-  (keys sorted)
-  )
+  (keys sorted))
