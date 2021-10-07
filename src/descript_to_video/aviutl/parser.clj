@@ -69,6 +69,17 @@
 (defn- format-level [key val]
   (str (name key) "=" val))
 
+(defn- compare-by-layer-start
+  "aviutlからyamlにparseしたmapについて、layerの昇順-start位置での昇順-引数順の比較を行うcomparater"
+    [x y]
+    (letfn [(parseInt [v] (cond (int? v) v :else (try (Integer/parseInt v) (catch Exception e nil))))]
+      (println (:layer x) (:layer y))
+      ;; (println (:start x) (:start y))
+      (cond
+        (> (parseInt (:layer x)) (parseInt (:layer y))) y
+        (> (parseInt (:start x)) (parseInt (:start y))) y
+        :else x)))
+
 (defn- get-nested-keys
   "ネストしたmapのkeyをvectorとして返す"
   [mp result]
@@ -101,7 +112,7 @@
   (loop [key (inc (Integer/parseInt (name (last (keys base)))))
          keys-to-add (keys add)
          result base]
-    ;; (println key keys-to-add)
+    (println key keys-to-add)
     (cond (empty? keys-to-add) result
           :else
           (recur
@@ -148,6 +159,13 @@
   ;; 動作確認に使っているスニペット系
   ;; TODO:テストに移す
   (def sample-map (aviutl-object->yaml (slurp "./sample/sample.exo" :encoding "shift-jis")))
+  (def sample-tts-object (descript-to-video.aviutl.aviutl/get-tts-object 1  "./output/voices/210923210356664_ゆかり_おっつおっつ.wav" "おっつおっつ" "ゆかり"))
+  (def sample-tts-merged (conj-aviutl-map sample-map sample-tts-object))
+  (->>
+   sample-tts-merged
+   yaml->aviutl-object
+   (spit "../tmp.exo"))
+  
   (def sample-slide1 (aviutl-object->yaml (slurp "./sample/slide_template.exo" :encoding "shift-jis")))
   (def sample-slide2 (aviutl-object->yaml (slurp "./output/slide2.exo" :encoding "shift-jis")))
   (def added (conj-aviutl-map sample-map sample-slide1))
@@ -155,12 +173,6 @@
   (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   (def sample-yaml (yaml/from-file "./sample/sample.yaml"))
   (def parsed2 (aviutl-object->yaml raw-dest))
-  (= sample-yaml sample-map)
-  (spit "../tmp.txt" (yaml->aviutl-object parsed2) :encoding "shift-jis")
-  ;; get-nested-keysのテスト
-  (get-nested-keys (:0.1 (:0 sample-yaml)) '())
-  (get-nested-keys (:1 sample-yaml) '[])
-  (get-nested-keys sample-yaml '[])
 
   (map list (keys sample-map))
   (map #(list :exedit %) (keys (get-in sample-map '(:exedit))))
@@ -173,21 +185,22 @@
   (get-in sorted-added [:0 :layer])
   (get-in sorted-added [:1 :layer])
   (get-in sorted-added [:2 :layer])
-  (Integer/parseInt (get-in added [:2 :layer]))
-  (apply #(Integer/parseInt %) "121")
-  (def sorted (sort-by (juxt :layer :start) (dissoc added :exedit)))
-  (first   sorted)
-  (println sorted)
-  (seq? sorted)
-  (map (fn [key] {key (get-in added [key :layer])}) (keys added))
-  (sort-by
-   (fn
-     [key]
-     (let [layer (get-in added [key :layer])
-           start (get-in added [key :start])]
-      ;;  (println key layer start)
-       layer))
-   (keys added))
+
+  
+  (get-in sample-map [:0 :layer])
+  (get-in sample-tts-object [:0 :layer])
+  (->
+   sample-tts-object
+  ;;  sample-map
+  ;;  (get-in [:0 :start])
+   (get-in [:0 :layer])
+   Integer/parseInt)
+  (get-in sample-tts-object [:0 :start])
+  
+  (> 28 10)
+  (:layer (compare-by-layer-start (get-in sample-map [:0]) (get-in sample-tts-object [:0])))
+  (< 1 2)
+
   (sort-aviutl-object-map added)
   (keyword "0")
 
