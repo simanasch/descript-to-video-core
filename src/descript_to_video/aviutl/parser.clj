@@ -126,13 +126,13 @@
 (defn sort-aviutl-object-map
   "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
   [aviutl-object-map]
-  (letfn [(parseint [x] (try (Integer/parseInt x) (catch Exception e 0)))]
+  (letfn [(parseint [x] (cond (int? x) x :else (try (Integer/parseInt x) (catch Exception e 0))))]
     (loop [vals (sort-by
                   (juxt (comp parseint :layer) (comp parseint :start))
                   (filter #(and (:layer %) (:start %)) (vals aviutl-object-map)))
            object-serial-number 0
            result (m/map->ordered-map {:exedit (:exedit aviutl-object-map)})]
-      (println (map :layer vals) (map :start vals))
+      (println "sort-aviutl-object-map" (map  (comp parseint :layer) vals) (map :start vals))
       (let [key-for-sorted (keyword (str object-serial-number))]
         ;; (println key)
         (cond (empty? vals) result
@@ -154,7 +154,9 @@
    (spit "../tmp.exo"))
   (keys (dissoc sample-tts-merged :exedit))
   (defn parseint [x] (try (Integer/parseInt x) (catch Exception e 0)))
-  (sort-by (juxt (comp parseint :layer) (comp parseint :start)) (vals sample-tts-merged))
+  (def sample-tts-sorted (sort-by (juxt (comp parseint :layer) (comp parseint :start)) (vals sample-tts-merged)))
+  (map :layer sample-tts-sorted)
+  (map :start sample-tts-sorted)
   ((juxt :layer :start) #(fn [x] (comp parseint (% x))))
   ((comp parseint :layer) (second (vals sample-tts-merged)))
 
