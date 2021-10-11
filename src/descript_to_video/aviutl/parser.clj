@@ -69,17 +69,6 @@
 (defn- format-level [key val]
   (str (name key) "=" val))
 
-(defn- compare-by-layer-start
-  "aviutlからyamlにparseしたmapについて、layerの昇順-start位置での昇順-引数順の比較を行うcomparater"
-    [x y]
-    (letfn [(parseInt [v] (cond (int? v) v :else (try (Integer/parseInt v) (catch Exception e nil))))]
-      (println (:layer x) (:layer y))
-      ;; (println (:start x) (:start y))
-      (cond
-        (> (parseInt (:layer x)) (parseInt (:layer y))) y
-        (> (parseInt (:start x)) (parseInt (:start y))) y
-        :else x)))
-
 (defn- get-nested-keys
   "ネストしたmapのkeyをvectorとして返す"
   [mp result]
@@ -110,7 +99,9 @@
   "yamlになっているaviutlのmap2つを結合する"
   [base add]
   (loop [key (inc (Integer/parseInt (name (last (keys base)))))
-         keys-to-add (keys add)
+         keys-to-add (filter #(and
+                               (get-in add [% :layer])
+                               (get-in add [% :start])) (keys add))
          result base]
     (println key keys-to-add)
     (cond (empty? keys-to-add) result
@@ -135,37 +126,38 @@
 (defn sort-aviutl-object-map
   "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
   [aviutl-object-map]
-  (letfn [(sort-by-layer-start
-            [x y]
-            (let [layer-x (get-in aviutl-object-map [x :layer])
-                  layer-y (get-in aviutl-object-map [y :layer])]
-              ;; (println "comparing:" x y layer-x layer-y)
-              (cond (= layer-x layer-y) (compare (get-in aviutl-object-map [x :start]) (get-in aviutl-object-map [y :start]))
-                    :else (compare (get-in aviutl-object-map [x :layer]) (get-in aviutl-object-map [y :layer])))))]
-    (loop [keys (sort
-                 sort-by-layer-start
-                 (keys aviutl-object-map))
+  (letfn [(parseint [x] (try (Integer/parseInt x) (catch Exception e 0)))]
+    (loop [vals (sort-by
+                  (juxt (comp parseint :layer) (comp parseint :start))
+                  (filter #(and (:layer %) (:start %)) (vals aviutl-object-map)))
            object-serial-number 0
            result (m/map->ordered-map {:exedit (:exedit aviutl-object-map)})]
-      (let [key (first keys)
-            key-serial-number (try (Integer/parseInt (name key)) (catch Exception e nil))
-            key-for-sorted (keyword (str object-serial-number))]
+      (println (map :layer vals) (map :start vals))
+      (let [key-for-sorted (keyword (str object-serial-number))]
         ;; (println key)
-        (cond (empty? keys) result
-              (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
-              :else (recur (rest keys) (inc object-serial-number) (assoc result key-for-sorted (rename-effect-keys (get aviutl-object-map key) key-for-sorted))))))))
+        (cond (empty? vals) result
+              ;; (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
+              :else (recur (rest vals) (inc object-serial-number) (assoc result key-for-sorted (rename-effect-keys (first vals) key-for-sorted))))))))
 
 (comment
   ;; 動作確認に使っているスニペット系
   ;; TODO:テストに移す
   (def sample-map (aviutl-object->yaml (slurp "./sample/sample.exo" :encoding "shift-jis")))
   (def sample-tts-object (descript-to-video.aviutl.aviutl/get-tts-object 1  "./output/voices/210923210356664_ゆかり_おっつおっつ.wav" "おっつおっつ" "ゆかり"))
+  (def sample-tts-object-2 (descript-to-video.aviutl.aviutl/get-tts-object 1  "./output/voices/210826231845813_葵_葵です.wav" "葵です" "ゆかり"))
   (def sample-tts-merged (conj-aviutl-map sample-map sample-tts-object))
+
   (->>
    sample-tts-merged
+   sort-aviutl-object-map
    yaml->aviutl-object
    (spit "../tmp.exo"))
-  
+  (keys (dissoc sample-tts-merged :exedit))
+  (defn parseint [x] (try (Integer/parseInt x) (catch Exception e 0)))
+  (sort-by (juxt (comp parseint :layer) (comp parseint :start)) (vals sample-tts-merged))
+  ((juxt :layer :start) #(fn [x] (comp parseint (% x))))
+  ((comp parseint :layer) (second (vals sample-tts-merged)))
+
   (def sample-slide1 (aviutl-object->yaml (slurp "./sample/slide_template.exo" :encoding "shift-jis")))
   (def sample-slide2 (aviutl-object->yaml (slurp "./output/slide2.exo" :encoding "shift-jis")))
   (def added (conj-aviutl-map sample-map sample-slide1))
@@ -186,7 +178,6 @@
   (get-in sorted-added [:1 :layer])
   (get-in sorted-added [:2 :layer])
 
-  
   (get-in sample-map [:0 :layer])
   (get-in sample-tts-object [:0 :layer])
   (->
@@ -195,14 +186,4 @@
   ;;  (get-in [:0 :start])
    (get-in [:0 :layer])
    Integer/parseInt)
-  (get-in sample-tts-object [:0 :start])
-  
-  (> 28 10)
-  (:layer (compare-by-layer-start (get-in sample-map [:0]) (get-in sample-tts-object [:0])))
-  (< 1 2)
-
-  (sort-aviutl-object-map added)
-  (keyword "0")
-
-  (spit "./output/sorted.exo" (yaml->aviutl-object added) :encoding "shift-jis")
-  (keys sorted))
+  (get-in sample-tts-object [:0 :start]))
