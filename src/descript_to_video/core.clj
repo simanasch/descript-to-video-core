@@ -7,6 +7,8 @@
 
 (defn -main
   [& args]
+  ;; TODO:引数の値による処理分岐
+  ;; とりあえず出力のファイル形式は変えられるようにする
   (apply println "Received args:" args)
   (let [targetPath (read-line)
         ;; "E://Documents/descript-to-video/sample/sample.md"
@@ -18,7 +20,7 @@
 
 (comment
   ;; 以下動作確認してる時のサンプル
-  (def lib-text  (mdparser/get-voiceroid-text-lines (slurp "E://Documents/descript-to-video/resources/manuscripts/sample.md")))
+  (def lib-text  (mdparser/get-voiceroid-text-lines (slurp "E://Documents/descript-to-video/sample/sample.md")))
   lib-text
   (first lib-text)
   (-main)

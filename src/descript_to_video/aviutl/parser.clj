@@ -18,13 +18,6 @@
             :else (vector (keyword layerSerialNo) (keyword (str layerSerialNo "." optionSerialNo)))))
     :else keys))
 
-(defn- get-keyval
-  [st]
-  (cond (not (string? st)) nil
-        :else (let [[key val] (s/split st #"=")]
-                (println key val)
-                {(keyword key) (str val)})))
-
 (defn- format-aviutl-line-to-yaml
   "aviutlの.objの行に対して、yamlのタグとして読めるよう整形する"
   [text]
@@ -95,21 +88,6 @@
                     :else (format-level (last keys) val))))]
     (s/join "\r\n" (reduce #(conj %1 (format-keyval mp %2)) '[] (get-nested-keys mp '[])))))
 
-(defn conj-aviutl-map
-  "yamlになっているaviutlのmap2つを結合する"
-  [base add]
-  (letfn [(parseint [x] (cond (int? x) x :else (try (Integer/parseInt x) (catch Exception e 0))))]
-    (loop [key (inc (parseint (name (last (keys base)))))
-           vals-to-add (filter #(and (:layer %) (:start %)) (vals add))
-           result base]
-      (println "conj-aviutl-map" key (count vals-to-add) (:layer (first vals-to-add)))
-      (cond (empty? vals-to-add) result
-            :else
-            (recur
-             (inc key)
-             (rest vals-to-add)
-             (assoc result (keyword (str key)) (first vals-to-add)))))))
-
 (defn rename-effect-keys
   [obj key]
   (reduce-kv
@@ -121,39 +99,38 @@
              :else (assoc m k v))))
    (ordered-map) obj))
 
-(defn sort-aviutl-object-map
-  "aviutlのobjectのmapについて、layerの昇順-startの昇順でソートする"
-  [aviutl-object-map]
-  (letfn [(parseint [x] (cond (int? x) x :else (try (Integer/parseInt x) (catch Exception e 0))))]
-    (loop [vals (sort-by
-                  (juxt (comp parseint :layer) (comp parseint :start))
-                  (filter #(and (:layer %) (:start %)) (vals aviutl-object-map)))
-           object-serial-number 0
-           result (m/map->ordered-map {:exedit (:exedit aviutl-object-map)})]
-      (let [key-for-sorted (keyword (str object-serial-number))]
-        (println "sort-aviutl-object-map" (map  (comp parseint :layer) vals) (map :start vals) key-for-sorted)
-        (cond (empty? vals) result
-              ;; (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
-              :else (recur (rest vals) (inc object-serial-number) (assoc result key-for-sorted (rename-effect-keys (first vals) key-for-sorted))))))))
-
 (defn concat-aviutl-map
-  "yamlにパースしたaviutlのmap2つを結合し、ソートした状態で返す"
+  "yamlになっているaviutlのmap2つを結合する"
   [base add]
-  ((comp sort-aviutl-object-map conj-aviutl-map) base add))
+  (letfn [(parseint [x] (cond (int? x) x :else (try (Integer/parseInt x) (catch Exception e 0))))
+          (has-layer-and-start [mp] (and (:layer mp) (:start mp)))
+          (has-key-layer-and-start [key mp] (and (get-in  mp [key :layer]) (get-in  mp [key :start])))]
+    (loop [key 0
+          ;;  layer番号、start位置の定義されているオブジェクトのみマージする
+           vals-to-add (sort-by
+                        (juxt (comp parseint :layer) (comp parseint :start))
+                        (filter has-layer-and-start (concat (vals base) (vals add))))
+           result (dissoc base (filter (complement #(has-key-layer-and-start % base)) (keys base)))]
+      (let [key-for-sorted (keyword (str key))]
+        (println "concat-aviutl-map" (keys result) (:layer (first vals-to-add)))
+        (cond (empty? vals-to-add) result
+              :else (recur
+                     (inc key)
+                     (rest vals-to-add)
+                     (assoc result key-for-sorted (rename-effect-keys (first vals-to-add) key-for-sorted))))))))
 
-(comment
+  (comment
   ;; 動作確認に使っているスニペット系
   ;; TODO:テストに移す
   (def sample-map (aviutl-object->yaml (slurp "./sample/sample.exo" :encoding "shift-jis")))
   (def sample-tts-object (descript-to-video.aviutl.aviutl/get-tts-object 1  "./output/voices/210923210356664_ゆかり_おっつおっつ.wav" "おっつおっつ" "ゆかり"))
   (def sample-tts-object-2 (descript-to-video.aviutl.aviutl/get-tts-object 1  "./output/voices/210826231845813_葵_葵です.wav" "葵です" "ゆかり"))
-  (def sample-tts-merged (conj-aviutl-map sample-map sample-tts-object))
+  (def sample-tts-merged (concat-aviutl-map sample-map sample-tts-object))
+  (map (juxt :layer :start) sample-tts-object)
+  (map (apply juxt '[:layer :start]) (:0 sample-tts-object))
+  (concat (vals sample-map) (vals sample-tts-object-2))
 
-  (->>
-   sample-tts-merged
-   sort-aviutl-object-map
-   yaml->aviutl-object
-   (spit "../tmp.exo"))
+
   (keys (dissoc sample-tts-merged :exedit))
   (defn parseint [x] (try (Integer/parseInt x) (catch Exception e 0)))
   (def sample-tts-sorted (sort-by (juxt (comp parseint :layer) (comp parseint :start)) (vals sample-tts-merged)))
@@ -164,7 +141,6 @@
 
   (def sample-slide1 (aviutl-object->yaml (slurp "./sample/slide_template.exo" :encoding "shift-jis")))
   (def sample-slide2 (aviutl-object->yaml (slurp "./output/slide2.exo" :encoding "shift-jis")))
-  (def added (conj-aviutl-map sample-map sample-slide1))
   ;; sample-yamlとparsedは一致する(はず)
   (def raw-dest (slurp "./sample/sample_dest.exo" :encoding "shift-jis"))
   (def sample-yaml (yaml/from-file "./sample/sample.yaml"))
@@ -173,14 +149,6 @@
   (map list (keys sample-map))
   (map #(list :exedit %) (keys (get-in sample-map '(:exedit))))
   (map #(get-in sample-yaml %) (map #(list :exedit %) (keys (get-in sample-map '(:exedit)))))
-  (def sorted-added (sort-aviutl-object-map added))
-  (keys (:2 sorted-added))
-  (keys (rename-effect-keys (:2 sorted-added) :2))
-  (:exedit sorted-added)
-  (keys sorted-added)
-  (get-in sorted-added [:0 :layer])
-  (get-in sorted-added [:1 :layer])
-  (get-in sorted-added [:2 :layer])
 
   (get-in sample-map [:0 :layer])
   (get-in sample-tts-object [:0 :layer])

@@ -68,7 +68,7 @@
 (comment
   (def sample-texts '(["ゆかり" "これはサンプルのスライドです"] ["ゆかり" "解説はコメントに書くようにしています、"] ["ゆかり" "テキストを書いてコマンド実行すると、"] ["ゆかり" "コメントの中からvoiceroidで読み上げるテキストを拾って"] ["ゆかり" "読み上げが終わったら次のスライドを表示するようにしてくれます"] ["ゆかり" "biim風のレイアウトにもできます"]))
   (def talk-task (talk-agent "葵" "さとうささらです"))
-  (save-to-files (descript-to-video.markdown.parser/get-voiceroid-text-lines (slurp "E://Documents/descript-to-video/sample/sample.md")))
+  ;; (save-to-files (descript-to-video.markdown.parser/split-by-slides (slurp "E://Documents/descript-to-video/sample/sample.md")))
   (def ag (agent "葵"))
   (send-off ag #(talk %1 %2)  "さとうささらです")
   (await-for 10000 ag)

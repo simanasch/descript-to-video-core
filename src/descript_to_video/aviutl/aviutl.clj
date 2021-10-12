@@ -141,11 +141,11 @@
   ;; slide-mergedとtts-mergedをテンプレにした.exoにマージすればとりあえず目標達成になるはず
   (def slide-merged
     (reduce
-     (comp parser/sort-aviutl-object-map parser/conj-aviutl-map)
+     parser/concat-aviutl-map
      sample-map
      sample-slides-objects))
   (def tts-merged
-    (reduce (comp parser/sort-aviutl-object-map parser/conj-aviutl-map)
+    (reduce parser/concat-aviutl-map
             sample-map
             sample-tts-objects))
   (def slide-and-tts-merged
@@ -153,7 +153,7 @@
             slide-merged
             sample-tts-objects))
   (->
-   ((comp parser/sort-aviutl-object-map parser/conj-aviutl-map) sample-map (first (reduce concat sample-tts-objects)))
+   (parser/concat-aviutl-map sample-map (first (reduce concat sample-tts-objects)))
   ;;  keys
    parser/yaml->aviutl-object
    println)
