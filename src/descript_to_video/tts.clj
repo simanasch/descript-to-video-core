@@ -2,7 +2,9 @@
   (:require [clojure.java.shell :as shell]
             [clojure.string :as s]
             [clojure.java.io :as io]
-            [descript-to-video.util.date :as d]))
+            [descript-to-video.util.date :as d]
+            [descript-to-video.aviutl.aviutl :as aviutl]
+            [descript-to-video.aviutl.parser :as parser]))
 
 ;; 定数群
 ;; TODO:設定ファイルから取得
@@ -45,6 +47,19 @@
     (spit textFileName joinedText :encoding "shift-jis")
     (shell/sh "cmd" "/c" ttsControllerPath "-t" joinedText "-n" library "-o" wavFileName)))
 
+(defn save-to-exo
+  [library text start]
+  (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
+        filepath (str default-output-path (gen-file-name library joinedText))
+        wavFileName (str filepath ".wav")
+        exo-file-name (str filepath ".exo")
+        result (save-to-file library text)]
+    (spit exo-file-name (parser/yaml->aviutl-object (aviutl/get-tts-object start wavFileName joinedText library)) :encoding "shift-jis")))
+
+(defn save-to-files
+  [ttslist]
+  (doall (map #(save-to-file (first %) (rest %)) ttslist)))
+
 (defn save-to-file-agent
   [library text]
   (let [ag (agent library)]
@@ -53,6 +68,7 @@
 (comment
   (def sample-texts '(["ゆかり" "これはサンプルのスライドです"] ["ゆかり" "解説はコメントに書くようにしています、"] ["ゆかり" "テキストを書いてコマンド実行すると、"] ["ゆかり" "コメントの中からvoiceroidで読み上げるテキストを拾って"] ["ゆかり" "読み上げが終わったら次のスライドを表示するようにしてくれます"] ["ゆかり" "biim風のレイアウトにもできます"]))
   (def talk-task (talk-agent "葵" "さとうささらです"))
+  ;; (save-to-files (descript-to-video.markdown.parser/split-by-slides (slurp "E://Documents/descript-to-video/sample/sample.md")))
   (def ag (agent "葵"))
   (send-off ag #(talk %1 %2)  "さとうささらです")
   (await-for 10000 ag)
@@ -66,5 +82,6 @@
   (save-to-file "葵" "葵です")
   (save-to-file "茜" '("あかねちゃんやで" "葵です"))
   (save-to-file "さとうささら" "さとうささらです")
-
+  (save-to-exo "ゆかり" "別のゆかりさんです" 1)
+  (save-to-exo "ゆかり" "その他のゆかりさんです" 1)
   )
