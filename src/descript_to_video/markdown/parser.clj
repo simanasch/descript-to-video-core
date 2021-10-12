@@ -28,7 +28,7 @@
 
   (def memo (slurp "../memo.md"))
   (def raw-text (slurp "sample/sample.md"))
-  
+
   (get-voiceroid-text-lines (first (split-by-slides memo)))
   (map (comp descript-to-video.tts/save-to-files get-voiceroid-text-lines)  (split-by-slides raw-text))
   (count (split-by-slides raw-text))

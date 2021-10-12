@@ -13,5 +13,6 @@
    maps))
 
 (defn map->ordered-map
+  "ネストしたmapに対し、再帰的にmapからordered-mapに詰め替えする"
   [map]
   (w/postwalk #(cond (map? %) (ordered-map %) :else %) map))

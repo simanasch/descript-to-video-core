@@ -98,19 +98,17 @@
 (defn conj-aviutl-map
   "yamlになっているaviutlのmap2つを結合する"
   [base add]
-  (loop [key (inc (Integer/parseInt (name (last (keys base)))))
-         keys-to-add (filter #(and
-                               (get-in add [% :layer])
-                               (get-in add [% :start])) (keys add))
-         result base]
-    (println key keys-to-add)
-    (cond (empty? keys-to-add) result
-          :else
-          (recur
-           (inc key)
-           (rest keys-to-add)
-          ;;  オブジェクトの通し番号とオプションに含まれる通し番号が一致しないので要成形
-           (assoc result (keyword (str key)) (get add (first keys-to-add)))))))
+  (letfn [(parseint [x] (cond (int? x) x :else (try (Integer/parseInt x) (catch Exception e 0))))]
+    (loop [key (inc (parseint (name (last (keys base)))))
+           vals-to-add (filter #(and (:layer %) (:start %)) (vals add))
+           result base]
+      (println "conj-aviutl-map" key (count vals-to-add) (:layer (first vals-to-add)))
+      (cond (empty? vals-to-add) result
+            :else
+            (recur
+             (inc key)
+             (rest vals-to-add)
+             (assoc result (keyword (str key)) (first vals-to-add)))))))
 
 (defn rename-effect-keys
   [obj key]
@@ -119,7 +117,7 @@
      (let [serial (name key)
            effect-key (name k)]
         ;;  (println k)
-       (cond (map? v) (assoc m (keyword (s/replace-first effect-key #"\w+?" serial)) v)
+       (cond (map? v) (assoc m (keyword (s/replace-first effect-key #"\w+" serial)) v)
              :else (assoc m k v))))
    (ordered-map) obj))
 
@@ -132,12 +130,16 @@
                   (filter #(and (:layer %) (:start %)) (vals aviutl-object-map)))
            object-serial-number 0
            result (m/map->ordered-map {:exedit (:exedit aviutl-object-map)})]
-      (println "sort-aviutl-object-map" (map  (comp parseint :layer) vals) (map :start vals))
       (let [key-for-sorted (keyword (str object-serial-number))]
-        ;; (println key)
+        (println "sort-aviutl-object-map" (map  (comp parseint :layer) vals) (map :start vals) key-for-sorted)
         (cond (empty? vals) result
               ;; (nil? key-serial-number) (recur (rest keys) object-serial-number (assoc result key (get aviutl-object-map key)))
               :else (recur (rest vals) (inc object-serial-number) (assoc result key-for-sorted (rename-effect-keys (first vals) key-for-sorted))))))))
+
+(defn concat-aviutl-map
+  "yamlにパースしたaviutlのmap2つを結合し、ソートした状態で返す"
+  [base add]
+  ((comp sort-aviutl-object-map conj-aviutl-map) base add))
 
 (comment
   ;; 動作確認に使っているスニペット系
