@@ -69,7 +69,7 @@
    (let [end (dec (+ start (a/get-wav-length path)))
          absolute-path (.getAbsolutePath (io/file path))
          layer (get-in setting [(keyword library) :layer])]
-    (println "raw text:" setting (keyword library) layer)
+    ;; (println "raw text:" setting (keyword library) layer)
      (copy-from-object-as-ordered-map
       (map->ordered-map
        {:0 {:layer layer
