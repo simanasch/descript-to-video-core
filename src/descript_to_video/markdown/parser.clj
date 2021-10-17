@@ -23,21 +23,3 @@
         text-to-split (cond (s/starts-with? text "--") (nnext text-seq)
                             :else text-seq)]
     (map s/split-lines text-to-split)))
-
-(comment
-
-  (def memo (slurp "../memo.md"))
-  (def raw-text (slurp "sample/sample.md"))
-
-  (get-voiceroid-text-lines (first (split-by-slides memo)))
-  (map (comp descript-to-video.tts/save-to-files get-voiceroid-text-lines)  (split-by-slides raw-text))
-  (count (split-by-slides raw-text))
-  (println raw-text)
-  (s/split raw-text #"^--+")
-  (re-matches #"(marp)" raw-text)
-
-  (map #(s/split % #"＞") (filter #(s/includes? % "＞") (s/split-lines raw-text)))
-  (get-voiceroid-text-lines raw-text)
-  (get-body-text-lines raw-text)
-  )
-
