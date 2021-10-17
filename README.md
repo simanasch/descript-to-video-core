@@ -22,7 +22,7 @@ Download from http://example.com/FIXME.
 
 javaの実行環境が必要です
 
-    $ java -jar descript-to-video-0.1.0-standalone.jar [args]
+    $ javaw -jar descript-to-video-0.1.0-standalone.jar [args]
 
 ## Options
 
@@ -33,10 +33,9 @@ FIXME: listing of options this app accepts.
 ...
 
 ## 動作のしくみ
-* marpでmarkdownからスライドを出力
 * clojureでmarkdownからttsで読み上げする内容の含まれている行を取得
+* marpでmarkdownからスライドを出力
   * 先頭行から順にテキスト内容をspeechSampleを使用して出力
-  * かんしくんを使用してaviutlのタイムラインに順次追加
 <!-- 
 この状態だと音声のみ追加されている状態のはず
 スライドをタイムラインに追加する処理が必要
@@ -47,37 +46,37 @@ markdown(テキスト+順序情報)+デフォルト値で動画にする
 
 **このプロジェクトはpre-alphaです**
 
-### Any Other Sections
-### That You Think
-### Might be Useful
-
 ## Motivation
 解説動画を楽して作りたい、原稿ファイル一つ用意してバッチに投げ込んだらとりあえずスライドショーに音声がついてる程度の動画ができてるといいのでは?
-## TODO
+## TODO/検討事項
+TODOというか検討事項と対応状況の書き散らし
  - [x] markdonwから音声を一括保存する
  - [ ] 対応しているテキストのフォーマットを増やす
    - [ ] markdown
+   - [ ] csv
  - [ ] 呼び出し元を追加する(少なくともターミナルはNG)
    - [ ] aviutl拡張?
    - [ ] batchfile?
    - [ ] ごちゃまぜドロップス拡張?
+     - [ ] どのみちc#使うんだし呼び出し元はc#にしておく?
+   - [ ] とりあえずgrpcのサーバーとしてバックエンドを書く、フロントは多分grpcの呼び出し元であればいいのでなんとでもなるはずだ(適当)
  - [x] markdownと拡張編集オブジェクトファイルの相互変換
    - [x] できました(yamlと相互変換)
    - [x] 拡張編集のオブジェクトごとにaliasを作る
      - [x] aliasだと立ち絵関係に対応できないのでテンプレの.obj
  - [ ] 依存関係の整理
    - [x] 依存先のリポジトリをこっちに含める?
-     - [ ] →git-submoduleで対応した、ただ実際必要なのはビルド後のファイルである…
+   - [ ] 現状では一部処理が外部のリポジトリ(ttsController)に依存、リリースを作る際にあっちのビルド後をこっちに含めるか検討
  - [ ] aviutl以外への対応
-   - [ ] やるならDaVinchi Resolve
- - [ ] 呼び出し関係
+   - [ ] やるならDaVinchi Resolve?
+ - [x] 呼び出し関係
    - [x] marpの呼び出し(yarn使用)
  - [ ] ttsController呼び出しをいい感じにする
    - [ ] grpc使うとか
    - [ ] とりあえず:現状としては別途リポジトリをcloneした上でプロジェクトをビルドしてもらわないといけない
- - [ ] テストの追加
+ - [x] テストの追加
  - [ ] エラーハンドリングをちゃんとやる
- - [ ] テンプレートを使えるようにする
+ - [x] テンプレートを使えるようにする
  - [ ] 設定変更にUIをつける
  - [ ] フォルダ構成を考える
    - [ ] .aupと参照先のリソースは同一フォルダに入れる。
