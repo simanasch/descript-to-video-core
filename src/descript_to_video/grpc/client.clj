@@ -10,18 +10,28 @@
 (def channel 
   (atom 
    (. (. (. ManagedChannelBuilder forAddress "localhost" 30051) usePlaintext) build)))
-(comment
 
+;; 以下動作確認時のサンプル
+(comment
+  (def port 30051)
+  ;; 接続
+  (reset!
+   channel
+   (-> ManagedChannelBuilder
+       (. forAddress "localhost" port)
+       (. usePlaintext)
+       (. build)))
   (def stub
     (atom
      (. TTSServiceGrpc newBlockingStub @channel)))
-
   (def request
-  ;; setNameメソッドは.protoに定義されている属性名に依存
-    (. (. (. SpeechEngineRequest newBuilder) setEngineName "VOICEROID2") build))
-
+    (-> SpeechEngineRequest
+        (. newBuilder)
+        (.setEngineName "葵")
+        (.build)))
   (def reply
     (. @stub getSpeechEngineDetail request))
+  (println reply)
   (. (. @stub getSpeechEngineDetail request) getEngineName)
   (. (. @stub getSpeechEngineDetail request) getMessage)
   ;; サーバー側を閉じたら以下実行して接続を落としておくこと

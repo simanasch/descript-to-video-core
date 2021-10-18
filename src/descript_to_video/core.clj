@@ -8,7 +8,7 @@
            [descript-to-video.grpc.service GreeterServiceImpl]
            ))
 
-(def SERVER_PORT 50051)
+(def SERVER_PORT 30051)
 
 (defn start []
   (let [greeter-service (new GreeterServiceImpl)
