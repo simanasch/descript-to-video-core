@@ -16,7 +16,7 @@
     (await-for 10000 ag))
 
   (talk "葵" "さとうささらです")
-  (save-to-file "葵" "葵です")
+  (save-to-file "葵" "origとかできてないよね")
   (save-to-file "茜" '("あかねちゃんやで" "葵です"))
   (save-to-file "さとうささら" "さとうささらです")
   (save-to-exo "ゆかり" "別のゆかりさんです" 1)

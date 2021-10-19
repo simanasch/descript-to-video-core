@@ -27,6 +27,7 @@
 
 (comment
   ;; 以下実行すると正常に実行される…ので、多分client.cljのほうはなんかミスってそう
+  ;; →戻り値にnullが含まれてて落ちてたっぽい、リクエスト内容には特に問題なかった
   (import [io.grpc ManagedChannelBuilder])
   (import [io.grpc.examples.helloworld GreeterGrpc HelloRequest])
   (def channel

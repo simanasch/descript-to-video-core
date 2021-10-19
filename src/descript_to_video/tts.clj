@@ -8,7 +8,7 @@
 
 ;; 定数群
 ;; TODO:設定ファイルから取得
-(def ttsControllerPath "%USERPROFILE%\\TTSController\\src\\SpeechSample\\bin\\x64\\Release\\SpeechSample.exe")
+(def ttsControllerPath "%USERPROFILE%\\TTSController\\src\\SpeechSample\\bin\\SpeechSample.exe")
 (def separator #"-----\r\n")
 (def default-output-path "output/voices/")
 

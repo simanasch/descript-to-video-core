@@ -4,7 +4,7 @@
    :extends
    io.grpc.ttscontroller.TTSServiceGrpc$TTSServiceImplBase)
   (:import
-   [io.grpc.ttscontroller TTSServiceGrpc SpeechEngineRequest SpeechEngineList]
+   [io.grpc.ttscontroller TTSServiceGrpc SpeechEngineRequest SpeechEngineList ttsRequest ttsResult]
    [io.grpc ManagedChannelBuilder]))
 
 (def channel 
@@ -21,6 +21,7 @@
        (. forAddress "localhost" port)
        (. usePlaintext)
        (. build)))
+
   (def stub
     (atom
      (. TTSServiceGrpc newBlockingStub @channel)))
@@ -29,9 +30,18 @@
         (. newBuilder)
         (.setEngineName "葵")
         (.build)))
+  (def talkRequest
+    (-> (. ttsRequest newBuilder)
+        (.setEngineName "葵")
+        (.setBody "葵ちゃんだよ")
+        (.build)))
+  
   (def reply
     (. @stub getSpeechEngineDetail request))
+  (def ttsReply
+    (. @stub talk talkRequest))
   (println reply)
+  (println ttsReply)
   (. (. @stub getSpeechEngineDetail request) getEngineName)
   (. (. @stub getSpeechEngineDetail request) getMessage)
   ;; サーバー側を閉じたら以下実行して接続を落としておくこと
