@@ -15,16 +15,38 @@
    (. (. (. ManagedChannelBuilder forAddress "localhost" port) usePlaintext) build)))
 
 (def stub
-    (atom
-     (. TTSServiceGrpc newBlockingStub @channel)))
+  (atom
+   (. TTSServiceGrpc newBlockingStub @channel)))
 
 (defn gen-tts-request
   [EngineName Body Path]
   (-> (. ttsRequest newBuilder)
-        (.setLibraryName EngineName)
-        (.setBody Body)
-        (.setOutputPath Path)
-        (.build)))
+      (.setLibraryName EngineName)
+      (.setBody Body)
+      (.setOutputPath Path)
+      (.build)))
+
+(defn reset-connection!
+  []
+  (reset!
+   channel
+   (-> ManagedChannelBuilder
+       (. forAddress "localhost" port)
+       (. usePlaintext)
+       (. build)))
+  (reset!
+   stub
+   (. TTSServiceGrpc newBlockingStub @channel)))
+
+(defn talk
+  [request]
+  (let [result (. @stub talk request)]
+    (.getIsSuccess result)))
+
+(defn record
+  [request]
+  (let [result (. @stub record request)]
+    (.getOutputPath result)))
 
 ;; 以下動作確認時のサンプル
 (comment
@@ -39,7 +61,7 @@
    stub
    (. TTSServiceGrpc newBlockingStub @channel))
 
-  
+  (reset-connection!)
   (def request
     (-> SpeechEngineRequest
         (. newBuilder)
@@ -57,12 +79,12 @@
         (.setBody "別の葵ちゃんだよ")
         (.setOutputPath "E://Documents/descript-to-video/output/voices/別の葵ちゃんだよ.wav")
         (.build)))
-  (def sample-requests 
+  (def sample-requests
     [(gen-tts-request "ゆかり" "ゆかりさんです" "E://Documents/descript-to-video/output/voices/ゆかりさんです.wav")
      (gen-tts-request "さとうささら" "さとうささらです" "E://Documents/descript-to-video/output/voices/さとうささらです.wav")
      (gen-tts-request "葵" "葵ちゃんだよ" "E://Documents/descript-to-video/output/voices/葵ちゃんだよ.wav")
      (gen-tts-request "さとうささら" "別のさとうささらです" "E://Documents/descript-to-video/output/voices/別のさとうささらです.wav")])
-  (def sample-results (map #(. @stub talk %) sample-requests))
+  (def sample-results (map #(talk %) sample-requests))
   (first sample-results)
   (. @stub talk (first sample-requests))
 
@@ -70,8 +92,7 @@
     (. @stub getSpeechEngineDetail request))
   (def ttsReply
     (. @stub talk talkRequest))
-  (def ttsReply
-    (. @stub record talkRequest))
+  (def record-output-path (record talkRequest))
   (println reply)
   (println ttsReply)
   (. (. @stub getSpeechEngineDetail request) getEngineName)
@@ -79,4 +100,5 @@
   ;; サーバー側を閉じたら以下実行して接続を落としておくこと
   ;; そのままだとプロセスが残る
   (. @channel shutdownNow)
-  (. @channel isShutdown))
+  (. @channel isShutdown)
+  )
