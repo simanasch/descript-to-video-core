@@ -38,6 +38,11 @@
    stub
    (. TTSServiceGrpc newBlockingStub @channel)))
 
+(defn shutdown-connection!
+  []
+  (. @channel shutdownNow)
+  (. @channel isShutdown))
+
 (defn talk
   [request]
   (let [result (. @stub talk request)]
@@ -99,6 +104,5 @@
   (. (. @stub getSpeechEngineDetail request) getMessage)
   ;; サーバー側を閉じたら以下実行して接続を落としておくこと
   ;; そのままだとプロセスが残る
-  (. @channel shutdownNow)
-  (. @channel isShutdown)
+  (shutdown-connection!)
   )
