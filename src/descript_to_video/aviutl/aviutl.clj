@@ -1,7 +1,6 @@
 (ns descript-to-video.aviutl.aviutl
   (:gen-class)
   (:require [clojure.java.io :as io]
-            [clojure.walk :as w]
             [descript-to-video.util.format :as formatter]
             [descript-to-video.util.map :as m]
             [descript-to-video.util.audio :as a]
@@ -24,22 +23,6 @@
   (let [setting (get setting (keyword templateName) (:default setting))]
     (:alias setting)))
 
-(defn set-object-body
-  "TODO:Mapを使った実装にする?"
-  [body key seq]
-  (map
-   #(if (= %1 key) (str %1 (formatter/string->padded-hex (str prefix body suffix))) %1)
-   seq))
-
-(defn gen-object
-  "templateをコピーし、表示するテキストがtextのオブジェクトを生成する
-   TODO:ファイル名を変数にする、処理をきれいにする、set-object-bodyあたりを分割する"
-  [text template & rest]
-  (with-open [r (io/reader (get-template template) :encoding "shift-jis")
-              o (io/writer "test.exo" :encoding "shift-jis")]
-    (doseq [body (reduce conj [] (set-object-body text "text=" (line-seq r)))]
-      (.write o (str body "\r\n")))))
-
 (defn copy-from-object-as-ordered-map
   "templateをコピーし、新しいobjectを生成して返す
    updates:更新内容のordered-map"
@@ -51,14 +34,10 @@
      (fn [v1 v2] (cond (nil? v2) v1 :else v2))
      templateObject updates)))
 
-(defn map->ordered-map
-  [map]
-  (w/postwalk #(cond (map? %) (ordered-map %) :else %) map))
-
 (defn get-slide-object-as-ordered-map
   ([path start end]
    (copy-from-object-as-ordered-map
-    (map->ordered-map
+    (m/map->ordered-map
      {:0 {:start (str start)
           :end (str end)
           :0.0 {:file path}}})
@@ -72,7 +51,7 @@
          layer (get-in setting [(keyword library) :layer])]
     ;; (println "raw text:" setting (keyword library) layer)
      (copy-from-object-as-ordered-map
-      (map->ordered-map
+      (m/map->ordered-map
        {:0 {:layer layer
             :start (str start)
             :end (str end)
@@ -86,7 +65,7 @@
    (let [absolute-path (f/getAbsolutePath path)
          layer (get-in setting [(keyword library) :layer])]
      (copy-from-object-as-ordered-map
-      (map->ordered-map
+      (m/map->ordered-map
        {:0 {:start "1"
             :layer layer
             :0.0 {:text (formatter/string->padded-hex (str prefix text suffix))}}
@@ -95,5 +74,17 @@
       library))))
 
 (defn get-tts-objects
-  [start pathes]
-  (map get-tts-object pathes))
+  [template-path tts-results]
+  (loop [start 1
+         res (flatten tts-results)
+         result (parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))]
+    (cond
+      (empty? res) result
+      :else
+      (let [ttsResult (first res)
+            obj (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))]
+        (recur (+ start (a/get-wav-length (:outputPath ttsResult)))
+               (rest res)
+               (parser/concat-aviutl-map
+                result
+                obj))))))

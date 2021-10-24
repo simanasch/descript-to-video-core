@@ -3,7 +3,10 @@
   (:require [descript-to-video.tts :as tts]
             [descript-to-video.markdown.parser :as mdparser]
             [descript-to-video.grpc.client :as client]
-            [descript-to-video.markdown.marp :as marp]))
+            [descript-to-video.markdown.marp :as marp]
+            [descript-to-video.util.file :as f]
+            [descript-to-video.aviutl.aviutl :as aviutl]
+            [descript-to-video.aviutl.parser :as aviutl-parser]))
   ;; [descript-to-video.grpc.service]
   ;; (:import [io.grpc Server ServerBuilder]
   ;;          [io.grpc.stub StreamObserver]
@@ -27,15 +30,18 @@
 
 (defn start
   [& args]
-  (let [targetPath (cond (string? args) args :else "E://Documents/descript-to-video/sample/sample.md")
+  (let [template "E://Documents/descript-to-video/sample/sample.exo"
+        markdown (cond (string? args) args :else "E://Documents/descript-to-video/sample/sample.md")
         ;; "E://Documents/descript-to-video/sample/sample.md"
-        lib-text  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp targetPath)))
-        slides (marp/export-slides targetPath)
-        tts-pathes (tts/record-lines lib-text)]
-    (println tts-pathes)
-    (println slides)
-    ;; (tts/save-to-files lib-text)
-  ))
+        lib-text  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown)))
+        slides (marp/export-slides markdown)
+        tts-results (tts/record-lines lib-text)
+        tts-joined (aviutl/get-tts-objects template (flatten tts-results))]
+    (spit (str (f/getFolderName template) "/sample_result.exo") (aviutl-parser/yaml->aviutl-object tts-joined) :encoding "shift-jis")
+
+    (println tts-results)
+    (println slides))
+  )
 
 (defn -main
   [& args]

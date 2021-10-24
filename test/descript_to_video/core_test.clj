@@ -9,8 +9,6 @@
 (comment
   ;; 以下動作確認してる時のサンプル
   (def lib-text  (mdparser/get-voiceroid-text-lines (line-seq (slurp "E://Documents/descript-to-video/sample/sample.md"))))
-  lib-text
-  (first lib-text)
   (-main)
   (start)
   (tts/talk (first (first lib-text)) (rest (first lib-text)))

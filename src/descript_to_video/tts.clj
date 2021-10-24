@@ -73,6 +73,6 @@
 
 (defn record-lines
   [lines]
-  (flatten (map
-            #(map (comp g/record gen-requests) %)
-            lines)))
+  (map
+   #(map (comp g/record gen-requests) %)
+   lines))

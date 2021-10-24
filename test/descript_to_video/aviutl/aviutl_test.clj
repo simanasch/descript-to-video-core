@@ -73,22 +73,13 @@
     ;; 以下スライドのtts内容に対する.exoをまとめて生成
     (for [lines sample-tts-lines]
       (reduce concat (map #(get-tts-object (str %) (first %) (rest %)) lines))))
-  (def sample-slildes-and-tts-lines
-    (interleave sample-slide-lines sample-tts-lines))
 
-
-  (get (first (first sample-tts-objects)) :exedit)
-  (get (first (reduce concat sample-tts-objects)) :exedit)
   ;; slide-mergedとtts-mergedをテンプレにした.exoにマージすればとりあえず目標達成になるはず
   (def slide-merged
     (reduce
      parser/concat-aviutl-map
      sample-map
      sample-slides-objects))
-  ;; (def tts-merged
-  ;;   (reduce parser/concat-aviutl-map
-  ;;           sample-map
-  ;;           sample-tts-objects))
   (def slide-and-tts-merged
     (reduce parser/concat-aviutl-map
             slide-merged
@@ -102,7 +93,39 @@
   ;; slideに関してはうまくマージできてるっぽい
   (spit "../tmp_slides.exo" (parser/yaml->aviutl-object slide-merged) :encoding "shift-jis")
   ;; ttsもできた
-  ;; (spit "../tmp_tts.exo" (parser/yaml->aviutl-object tts-merged) :encoding "shift-jis")
   (spit "../tmp_slides-and-tts.exo" (parser/yaml->aviutl-object slide-and-tts-merged) :encoding "shift-jis")
   (spit "../tmp_slides-and-tts.yaml"  (yaml.writer/generate-string slide-and-tts-merged) :encoding "shift-jis")
+  
+  (require '[descript-to-video.markdown.parser :as mdparser]
+           '[descript-to-video.tts :as tts]
+           '[descript-to-video.util.audio :as a])
+  (def lib-text  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides raw-text)))
+  (def tts-results (tts/record-lines lib-text))
+  (def template-path "E://Documents/descript-to-video/sample/sample.exo")
+  (def tts-joined (get-tts-objects template-path  tts-results))
+  (loop [start 1
+         res  (flatten tts-results)
+         result (parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))]
+    (println (empty? res))
+    (cond (empty? res) result 
+          :else
+          (let [ttsResult (first res)
+                obj (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))]
+            (println (:outputPath ttsResult) ttsResult)
+            (recur (dec (+ start (a/get-wav-length (:outputPath ttsResult))))
+                   (rest res)
+                   (parser/concat-aviutl-map
+                    result
+                    obj)))))
+  (seq? tts-results)
+  (rest tts-results)
+  (first tts-results)
+  (let [start 1
+        ttsResult (first tts-results)
+        result (parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))]
+    (println (dec (+ start (a/get-wav-length (:outputPath ttsResult)))))
+    ;; (rest tts-results)
+    (parser/concat-aviutl-map
+     result
+     (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))))
   )
