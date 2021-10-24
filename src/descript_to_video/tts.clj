@@ -4,7 +4,8 @@
             [clojure.java.io :as io]
             [descript-to-video.util.date :as d]
             [descript-to-video.aviutl.aviutl :as aviutl]
-            [descript-to-video.aviutl.parser :as parser]))
+            [descript-to-video.aviutl.parser :as parser]
+            [descript-to-video.grpc.client :as g]))
 
 ;; 定数群
 ;; TODO:設定ファイルから取得
@@ -60,7 +61,9 @@
   [ttslist]
   (doall (map #(save-to-file (first %) (rest %)) ttslist)))
 
-(defn save-to-file-agent
-  [library text]
-  (let [ag (agent library)]
-    (send-off ag #(save-to-file %1 %2) text)))
+(defn talk
+  [line]
+  (-> line
+   (conj "")
+   (as-> line (apply g/gen-tts-request line))
+   g/talk))
