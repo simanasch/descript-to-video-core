@@ -3,6 +3,7 @@
             [clojure.string :as s]
             [clojure.java.io :as io]
             [descript-to-video.util.date :as d]
+            [descript-to-video.util.file :as f]
             [descript-to-video.aviutl.aviutl :as aviutl]
             [descript-to-video.aviutl.parser :as parser]
             [descript-to-video.grpc.client :as g]))
@@ -27,12 +28,7 @@
 (defn talk
   "TTSライブラリ名とテキストを指定し、SpeechSample.exeで喋らせる"
   [library text]
-  (shell/sh "cmd" "/c" ttsControllerPath "-t" (str text) "-n" library))
-
-(defn talk-agent
-  [library text]
-  (let [ag (agent library)]
-    (send-off ag #(talk %1 %2) text)))
+  (g/talk library text))
 
 (defn gen-file-name
   [library text]
@@ -41,17 +37,17 @@
 (defn save-to-file
   [library text]
   (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
-        filepath (str default-output-path (gen-file-name library joinedText))
-        wavFileName (str filepath ".wav")
+        filepath (f/getAbsolutePath (str default-output-path (gen-file-name library joinedText)))
+        wavFilePath (str filepath ".wav")
         textFileName (str filepath ".txt")]
-    (io/make-parents wavFileName)
+    (io/make-parents wavFilePath)
     (spit textFileName joinedText :encoding "shift-jis")
-    (shell/sh "cmd" "/c" ttsControllerPath "-t" joinedText "-n" library "-o" wavFileName)))
+    (g/record library joinedText wavFilePath)))
 
 (defn save-to-exo
   [library text start]
   (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
-        filepath (str default-output-path (gen-file-name library joinedText))
+        filepath (f/getAbsolutePath (str default-output-path (gen-file-name library joinedText)))
         wavFileName (str filepath ".wav")
         exo-file-name (str filepath ".exo")
         result (save-to-file library text)]
@@ -61,9 +57,22 @@
   [ttslist]
   (doall (map #(save-to-file (first %) (rest %)) ttslist)))
 
-(defn talk
+(defn gen-requests
   [line]
-  (-> line
-   (conj "")
-   (as-> line (apply g/gen-tts-request line))
-   g/talk))
+  (-> 
+   line 
+   (as-> x
+         (conj x (f/getAbsolutePath (str "output/voices/" (s/join "_" x) ".wav")))
+     (apply g/gen-tts-request x))))
+
+(defn talk-lines
+  [lines]
+  (map 
+   #(map (comp g/talk gen-requests) %)
+   lines))
+
+(defn record-lines
+  [lines]
+  (flatten (map
+            #(map (comp g/record gen-requests) %)
+            lines)))

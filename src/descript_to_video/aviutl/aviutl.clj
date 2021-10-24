@@ -5,6 +5,7 @@
             [descript-to-video.util.format :as formatter]
             [descript-to-video.util.map :as m]
             [descript-to-video.util.audio :as a]
+            [descript-to-video.util.file :as f]
             [descript-to-video.aviutl.parser :as parser]
             [yaml.core :as yaml])
   (:refer  flatland.ordered.map))
@@ -67,7 +68,7 @@
 (defn get-tts-object
   ([start path text library]
    (let [end (dec (+ start (a/get-wav-length path)))
-         absolute-path (.getAbsolutePath (io/file path))
+         absolute-path (f/getAbsolutePath path)
          layer (get-in setting [(keyword library) :layer])]
     ;; (println "raw text:" setting (keyword library) layer)
      (copy-from-object-as-ordered-map
@@ -82,7 +83,7 @@
             :1.0 {:file absolute-path}}})
       library)))
   ([path library text]
-   (let [absolute-path (.getAbsolutePath (io/file path))
+   (let [absolute-path (f/getAbsolutePath path)
          layer (get-in setting [(keyword library) :layer])]
      (copy-from-object-as-ordered-map
       (map->ordered-map
@@ -92,3 +93,7 @@
         :1 {:layer (inc layer)
             :1.0 {:file absolute-path}}})
       library))))
+
+(defn get-tts-objects
+  [start pathes]
+  (map get-tts-object pathes))

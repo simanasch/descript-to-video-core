@@ -51,14 +51,20 @@
   (. @channel isShutdown))
 
 (defn talk
-  [request]
+  ([request]
   (let [result (. @stub talk request)]
     (.getIsSuccess result)))
+  ([LibraryName Body Path]
+   (talk (gen-tts-request LibraryName Body Path)))
+  ([LibraryName Body]
+   (talk LibraryName Body "")))
 
 (defn record
-  [request]
-  (let [result (. @stub record request)]
-    (.getOutputPath result)))
+  ([request]
+   (let [result (. @stub record request)]
+     (.getOutputPath result)))
+  ([LibraryName Body Path]
+   (record (gen-tts-request LibraryName Body Path))))
 
 ;; 以下動作確認時のサンプル
 (comment
@@ -90,7 +96,6 @@
      (gen-tts-request "VOICEROID64" "ゆかり"  "Voiceroidのゆかりさんです" "E://Documents/descript-to-video/output/voices/ゆかりさんです.wav")])
   (map #(talk %) sample-requests)
   (map #(record %) sample-requests)
-  (first sample-results)
   (record (gen-tts-request "ゆかり" "これはテストです" "./これはテストです"))
   (talk (last sample-requests))
   (. @stub talk (first sample-requests))
@@ -101,10 +106,6 @@
     (. @stub talk talkRequest))
   (map (comp  #(.getEngineName %)) (.getDetailItemList reply))
   (def record-output-path (record talkRequest))
-  (println reply)
-  (println ttsReply)
-  (. (. @stub getSpeechEngineDetail request) getEngineName)
-  (. (. @stub getSpeechEngineDetail request) getMessage)
   ;; サーバー側を閉じたら以下実行して接続を落としておくこと
   ;; そのままだとプロセスが残る
   (shutdown-connection!))

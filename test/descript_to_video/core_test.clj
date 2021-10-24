@@ -12,6 +12,7 @@
   lib-text
   (first lib-text)
   (-main)
+  (start)
   (tts/talk (first (first lib-text)) (rest (first lib-text)))
   (for [sentence lib-text
         :let [library (first sentence)
