@@ -7,7 +7,7 @@
   )
 
 (comment
-  (shell/sh "cmd" "/c" "yarn marp sample/sample.md --images png --image-scale 1.5")
+  (shell/sh "cmd" "/c" "yarn marp sample/sample.md --images png --allow-local-files --image-scale 1.5")
   (def result (export-slides "E://Documents/descript-to-video/sample/sample.md"))
   (:exit result)
   (println (:err result))

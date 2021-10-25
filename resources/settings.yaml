@@ -1,6 +1,11 @@
 default:
   layer: 2
   alias: resources/alias/default.exo
+  voice: ゆかり
+雫:
+  layer: 5
+  alias: resources/alias/yukari.exo
+  voice: 雫
 ゆかり:
   layer: 10
   alias: resources/alias/yukari.exo
@@ -12,3 +17,7 @@ default:
 slide:
   layer: 2
   alias: resources/alias/slide_template.exo
+茜:
+  layer: 3
+  alias: resources/alias/yukari.exo
+  voice: 茜
