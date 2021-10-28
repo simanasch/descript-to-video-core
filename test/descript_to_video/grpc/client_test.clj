@@ -1,6 +1,9 @@
 (ns descript-to-video.grpc.client-test
   (:require [clojure.test :refer :all]
-            [descript-to-video.grpc.client :refer :all]))
+            [descript-to-video.grpc.client :refer :all])
+  (:import
+   [io.grpc.ttscontroller TTSServiceGrpc SpeechEngineRequest SpeechEngineList ttsRequest ttsResult]
+   [io.grpc ManagedChannelBuilder]))
 
 ;; 以下動作確認時のサンプル
 (comment

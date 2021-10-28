@@ -30,17 +30,24 @@
 
 (defn start
   [& args]
-  (let [template "E://Documents/descript-to-video/sample/sample.exo"
+  (let [template-path "E://Documents/descript-to-video/sample/sample.exo"
         markdown (cond (string? args) args :else "E://Documents/descript-to-video/sample/sample.md")
         ;; "E://Documents/descript-to-video/sample/sample.md"
-        lib-text  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown)))
+        tts-lines  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown)))
         slides (marp/export-slides markdown)
-        tts-results (tts/record-lines lib-text)
-        tts-joined (aviutl/get-tts-objects template (flatten tts-results))]
-    (spit (str (f/getFolderName template) "/sample_result.exo") (aviutl-parser/yaml->aviutl-object tts-joined) :encoding "shift-jis")
+        ;; slide-joined (map aviutl/get-slide-object-as-ordered-map slides)
+        tts-results (tts/record-lines tts-lines)
+        tts-joined (aviutl/merge-tts-objects
+                    (aviutl-parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))
+                    (aviutl/get-tts-objects (flatten tts-results)))]
+    ;; TODO:別スレッドでの処理に移動
 
     (println tts-results)
-    (println slides))
+    (println slides)
+    (println (str (f/getFolderName template-path) "\\sample_result.exo"))
+    (spit
+     (str (f/getFolderName template-path) "\\sample_result.exo")
+     (aviutl-parser/yaml->aviutl-object tts-joined) :encoding "shift-jis"))
   )
 
 (defn -main

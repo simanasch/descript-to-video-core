@@ -74,17 +74,19 @@
       library))))
 
 (defn get-tts-objects
-  [template-path tts-results]
-  (loop [start 1
-         res (flatten tts-results)
-         result (parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))]
-    (cond
-      (empty? res) result
-      :else
-      (let [ttsResult (first res)
-            obj (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))]
-        (recur (+ start (a/get-wav-length (:outputPath ttsResult)))
-               (rest res)
-               (parser/concat-aviutl-map
-                result
-                obj))))))
+  ([tts-results]
+   (loop [start 1
+          res tts-results
+          result '[]]
+     (cond
+       (empty? res) result
+       :else
+       (let [ttsResult (first res)
+             obj (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))]
+         (recur (+ start (a/get-wav-length (:outputPath ttsResult)))
+                (rest res)
+                (conj result obj)))))))
+
+(defn merge-tts-objects
+  [template tts-objects]
+  (reduce parser/concat-aviutl-map template tts-objects))

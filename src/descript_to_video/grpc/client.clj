@@ -8,7 +8,7 @@
    [io.grpc ManagedChannelBuilder]))
 
 
-(def port 30051)
+(def port 5001)
 
 (def channel
   (atom
