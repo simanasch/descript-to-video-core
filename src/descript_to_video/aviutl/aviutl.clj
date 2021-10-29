@@ -87,6 +87,26 @@
                 (rest res)
                 (conj result obj)))))))
 
-(defn merge-tts-objects
+(defn get-slide-display-positions
+  "tts/recordの結果のリストからスライドの表示開始位置/終了位置を含むネストしたvectorを返す
+   サンプル:[[1 680] [681 1439] [1440 2365] [2366 4055] [4056 4384]]"
+  [tts-results]
+  (let [slide-lengthes (map (fn [ttsobjects] (reduce + (map #(a/get-wav-length (:outputPath %)) ttsobjects))) tts-results)]
+    (loop [result '[]
+           start 1
+           end-positions slide-lengthes]
+      (cond (empty? end-positions) result
+            :else
+            (recur
+             (conj result (vector start (+ start (first end-positions))))
+             (inc (+ start (first end-positions)))
+             (rest end-positions))))))
+
+(defn get-slide-objects
+  "スライドの絶対パス、スライドの表示開始/終了位置を引数にスライドに対する.exoファイルを返す"
+  [slide-pathes slide-display-positions]
+  (into [] (map #(apply get-slide-object-as-ordered-map %1 %2)  slide-pathes slide-display-positions)))
+
+(defn merge-aviutl-objects
   [template tts-objects]
   (reduce parser/concat-aviutl-map template tts-objects))

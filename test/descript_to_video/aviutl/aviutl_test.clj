@@ -10,10 +10,13 @@
    [descript-to-video.markdown.parser :as mdparser]
    [descript-to-video.tts :as tts]
    [descript-to-video.util.audio :as a]
-   [descript-to-video.markdown.marp :as marp]))
+   [descript-to-video.markdown.marp :as marp] :reload))
 
 (def sample-file-path "test/resources/test_sample.md")
 (def sample-template-path "test/resources/test_sample.exo")
+(def sample-slide-pathes '("e:\\Documents\\descript-to-video\\test\\resources\\test_sample.001.png" "e:\\Documents\\descript-to-video\\test\\resources\\test_sample.002.png" "e:\\Documents\\descript-to-video\\test\\resources\\test_sample.003.png" "e:\\Documents\\descript-to-video\\test\\resources\\test_sample.004.png" "e:\\Documents\\descript-to-video\\test\\resources\\test_sample.005.png"))
+(def sample-tts-results '(({:isSuccess true, :libraryName "雫", :engineName "", :Body "こんにちは、結月ゆかり雫です", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_こんにちは、結月ゆかり雫です.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "この動画は手を抜くためになんでもしたようなツール動画…のうち今できてる内容を適当に喋る動画です。", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_この動画は手を抜くためになんでもしたようなツール動画…のうち今できてる内容を適当に喋る動画です。.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "絶賛制作中な内容になりますがお付き合いいただけると幸いです", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_絶賛制作中な内容になりますがお付き合いいただけると幸いです.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "ツッコミ役にあかねちゃんもおるで、調声できてないのは堪忍な", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_ツッコミ役にあかねちゃんもおるで、調声できてないのは堪忍な.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "では概要から", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_では概要から.wav"}) ({:isSuccess true, :libraryName "雫", :engineName "", :Body "パワポ流すタイプの解説動画を楽して作るツールです", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_パワポ流すタイプの解説動画を楽して作るツールです.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "動画でプログラム関係の解説を見ることは増えてきましたが、", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_動画でプログラム関係の解説を見ることは増えてきましたが、.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "動画の内容を文章で見たいことが多かったのでじゃあ文章から動画を作ってしまおうとなりました", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_動画の内容を文章で見たいことが多かったのでじゃあ文章から動画を作ってしまおうとなりました.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "そうはならんのでは？", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_そうはならんのでは？.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "あとはアイボスとか使いたいねというモチベです", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_あとはアイボスとか使いたいねというモチベです.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "次は実際やってることの説明やで", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_次は実際やってることの説明やで.wav"}) ({:isSuccess true, :libraryName "雫", :engineName "", :Body "今の所、実際に動画を出力するのにはaviutlを使うことにしています。", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_今の所、実際に動画を出力するのにはaviutlを使うことにしています。.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "立ち絵の設定とかは一度作っておけば使いまわしが効きそうだったので、一度テンプレートのファイルを作り、", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_立ち絵の設定とかは一度作っておけば使いまわしが効きそうだったので、一度テンプレートのファイルを作り、.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "テンプレートのファイルに対して音声とか画像を足して動画にできるファイルを作るのを目標にしています", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_テンプレートのファイルに対して音声とか画像を足して動画にできるファイルを作るのを目標にしています.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "そのまま動画にするとこまで作るのは間に合わんかったけどな", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_そのまま動画にするとこまで作るのは間に合わんかったけどな.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "締め切りは無慈悲でブルタルです", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_締め切りは無慈悲でブルタルです.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "次に現状と課題やで", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_次に現状と課題やで.wav"}) ({:isSuccess true, :libraryName "雫", :engineName "", :Body "絶賛制作中って感じのチェックリストですね", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_絶賛制作中って感じのチェックリストですね.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "せやな", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_せやな.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "先行研究で各種ttsを統一的に使えるライブラリがあったので大いに助かっています。", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_先行研究で各種ttsを統一的に使えるライブラリがあったので大いに助かっています。.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "進捗は…とりあえず来年1月ぐらいに動くのができるかもしれないです", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_進捗は…とりあえず来年1月ぐらいに動くのができるかもしれないです.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "その他補足としては、製作中aviutlで使えるファイルにするために手間取ったので…", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_その他補足としては、製作中aviutlで使えるファイルにするために手間取ったので….wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "pythonが使えるらしいDavinchi対応は優先してやりたいのですが、私はpythonわからないんですよね", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_pythonが使えるらしいDavinchi対応は優先してやりたいのですが、私はpythonわからないんですよね.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "やればたぶんできるで、たぶんな", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_やればたぶんできるで、たぶんな.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "あとは…この中だと調声できないってのは微妙やない？", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_あとは…この中だと調声できないってのは微妙やない？.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "そうなんですが、対応できるのが結構後になりそうです、UI作ってからになるので…", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_そうなんですが、対応できるのが結構後になりそうです、UI作ってからになるので….wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "1文ごとに順次読み上げをするのはやや楽なので、事前にフレーズ編集してもらえればいいかと思っています", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_1文ごとに順次読み上げをするのはやや楽なので、事前にフレーズ編集してもらえればいいかと思っています.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "まあ動いてからの話になるけどな", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_まあ動いてからの話になるけどな.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "そうですね…", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_そうですね….wav"}) ({:isSuccess true, :libraryName "茜", :engineName "", :Body "次は導入方法の予定だったけど、まだ導入できる状態でもないので現状はここで締めるで", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_次は導入方法の予定だったけど、まだ導入できる状態でもないので現状はここで締めるで.wav"} {:isSuccess true, :libraryName "雫", :engineName "", :Body "ご視聴ありがとうございました", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\雫_ご視聴ありがとうございました.wav"} {:isSuccess true, :libraryName "茜", :engineName "", :Body "ありがとなー", :outputPath "e:\\Documents\\descript-to-video\\output\\voices\\茜_ありがとなー.wav"})))
+(def sample-template-map (parser/aviutl-object->yaml (slurp sample-template-path :encoding "shift-jis")))
 
 (deftest descript-to-video.aviutl.aviutl-test
   (testing "get-templateのテスト"
@@ -43,31 +46,36 @@
   (def raw-text (slurp sample-file-path))
   (def sample-slide-lines (mdparser/split-by-slides raw-text))
   (def tts-lines (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides raw-text)))
-  (def tts-results (tts/record-lines tts-lines))
-  (def tts-joined (merge-tts-objects
-                   (parser/aviutl-object->yaml (slurp sample-template-path :encoding "shift-jis"))
-                   (get-tts-objects (flatten tts-results))))
-  (spit
-   "../test.exo"
-   (parser/yaml->aviutl-object tts-joined) :encoding "shift-jis")
-  (map #(get-in % '[:0 :end]) tts-objects)
+  ;; (def slide-pathes (marp/export-slides sample-file-path))
+  ;; (= tts-results sample-tts-results)
+  ;; (def tts-results (tts/record-lines tts-lines))
+  
+  ;; (spit
+  ;;  "../test.exo"
+  ;;  (parser/yaml->aviutl-object tts-joined) :encoding "shift-jis")
+  ;; (def tts-objects (get-tts-objects (flatten tts-results)))
+  (def end-positions (get-slide-display-positions sample-tts-results))
+  ;; (def line-per-slides (map count sample-tts-results))
+  (def tts-objects (get-tts-objects (flatten sample-tts-results)))
+  
+  (def slide-objects (get-slide-objects sample-slide-pathes end-positions))
+  (vector? tts-objects)
+  (vector? slide-objects)
+  (last (concat slide-objects tts-objects))
+  (map #(get-in % [:0 :start]) (concat tts-objects slide-objects))
+  (def all-joined
+    (-> sample-template-map
+        (merge-aviutl-objects slide-objects)
+        (merge-aviutl-objects tts-objects)))
+  (spit "../sample_result.exo" (parser/yaml->aviutl-object all-joined) :encoding "shift-jis")
+  
+  (merge-aviutl-objects (parser/aviutl-object->yaml (slurp sample-template-path :encoding "shift-jis")) slide-objects)
+  (reduce parser/concat-aviutl-map sample-template-map slide-objects)
+  (rest  slide-objects)
+  (reduce parser/concat-aviutl-map sample-template-map tts-objects)
+  (spit "../slides.exo" (parser/yaml->aviutl-object (reduce parser/concat-aviutl-map slide-objects)) :encoding "shift-jis")
+  
 
-  (map (comp count first) tts-results)
-  (map count (flatten tts-results))
-  (defn gen-temp-yaml
-    [markdownPath templatePath]
-    (let [template (parser/aviutl-object->yaml (slurp templatePath :encoding "shift-jis"))
-          raw-text (slurp markdownPath)
-          slide-lines (mdparser/split-by-slides raw-text)
-          tts-lines (map mdparser/get-voiceroid-text-lines slide-lines)]
-      (let [slide-objects (for [serial (map inc (range (count slide-lines)))
-                                :let [temp-file-path (str markdownPath "." serial ".png")]]
-                            (get-slide-object-as-ordered-map temp-file-path))
-            tts-objects (for [lines tts-lines]
-                          (reduce concat (map #(get-tts-object (str %) (first %) (rest %)) lines)))]
-        (reduce parser/concat-aviutl-map (reduce parser/concat-aviutl-map template slide-objects) tts-objects))))
-  (def temp-yaml (gen-temp-yaml "sample/sample.md" "./sample/sample.exo"))
-  (spit "../temp-object.exo" (parser/yaml->aviutl-object temp-yaml) :encoding "shift-jis")
 
   (get-slide-object-as-ordered-map sample-file-path)
   (def sample-slides-objects
@@ -130,4 +138,5 @@
     ;; (rest tts-results)
     (parser/concat-aviutl-map
      result
-     (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult)))))
+     (get-tts-object start (:outputPath ttsResult) (:Body ttsResult) (:libraryName ttsResult))))
+  )

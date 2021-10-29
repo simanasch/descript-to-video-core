@@ -37,9 +37,9 @@
         slides (marp/export-slides markdown)
         ;; slide-joined (map aviutl/get-slide-object-as-ordered-map slides)
         tts-results (tts/record-lines tts-lines)
-        tts-joined (aviutl/merge-tts-objects
-                    (aviutl-parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))
-                    (aviutl/get-tts-objects (flatten tts-results)))]
+        result-exo (-> (aviutl-parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))
+                            (aviutl/merge-aviutl-objects (aviutl/get-tts-objects (flatten tts-results)))
+                            (aviutl/merge-aviutl-objects (aviutl/get-slide-objects slides (aviutl/get-slide-display-positions tts-results))))]
     ;; TODO:別スレッドでの処理に移動
 
     (println tts-results)
@@ -47,7 +47,7 @@
     (println (str (f/getFolderName template-path) "\\sample_result.exo"))
     (spit
      (str (f/getFolderName template-path) "\\sample_result.exo")
-     (aviutl-parser/yaml->aviutl-object tts-joined) :encoding "shift-jis"))
+     (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis"))
   )
 
 (defn -main

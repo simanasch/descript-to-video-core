@@ -111,7 +111,7 @@
                         (filter has-layer-and-start (concat (vals base) (vals add))))
            result (dissoc base (filter (complement #(has-key-layer-and-start % base)) (keys base)))]
       (let [key-for-sorted (keyword (str key))]
-        ;; (println "concat-aviutl-map" (keys result) (:layer (first vals-to-add)))
+        (println "concat-aviutl-map" (count result) (:layer (first vals-to-add)))
         (cond (empty? vals-to-add) result
               :else (recur
                      (inc key)
