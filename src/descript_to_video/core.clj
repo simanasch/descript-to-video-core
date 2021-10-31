@@ -1,6 +1,7 @@
 (ns descript-to-video.core
   (:gen-class)
-  (:require [descript-to-video.tts :as tts]
+  (:require [ring.adapter.jetty :as server]
+            [descript-to-video.tts.tts :as tts]
             [descript-to-video.markdown.parser :as mdparser]
             [descript-to-video.grpc.client :as client]
             [descript-to-video.markdown.marp :as marp]
@@ -27,6 +28,27 @@
 ;;                       (.shutdown server))))))
 ;;     (if (not (nil? server))
 ;;       (.awaitTermination server))))
+
+(defonce server (atom nil))
+
+(defn handler [req]
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body "Hello, world"})
+
+(defn start-server []
+  (when-not @server
+    (reset! server (server/run-jetty handler {:port 3000 :join? false}))))
+
+(defn stop-server []
+  (when @server
+    (.stop @server)
+    (reset! server nil)))
+
+(defn restart-server []
+  (when @server
+    (stop-server)
+    (start-server)))
 
 (defn start
   [& args]

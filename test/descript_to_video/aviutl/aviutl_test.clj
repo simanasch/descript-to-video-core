@@ -8,7 +8,7 @@
    [descript-to-video.aviutl.parser :as parser]
    [flatland.ordered.map :refer :all]
    [descript-to-video.markdown.parser :as mdparser]
-   [descript-to-video.tts :as tts]
+   [descript-to-video.tts.tts :as tts]
    [descript-to-video.util.audio :as a]
    [descript-to-video.markdown.marp :as marp] :reload))
 

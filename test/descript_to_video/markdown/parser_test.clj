@@ -10,7 +10,7 @@
 
   (def raw-text (slurp "sample/sample.md"))
   (get-voiceroid-text-lines (first (split-by-slides memo)))
-  (map (comp descript-to-video.tts/save-to-files get-voiceroid-text-lines)  (split-by-slides raw-text))
+  (map (comp descript-to-video.tts.tts/save-to-files get-voiceroid-text-lines)  (split-by-slides raw-text))
   (def tts-lines (map  get-voiceroid-text-lines  (split-by-slides raw-text)))
   (def sample-line ["ゆかり" "これはテストです"])
   ;; tts-linesに以下をmapすればいいかんじになりそう

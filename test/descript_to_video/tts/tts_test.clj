@@ -1,7 +1,7 @@
-(ns descript-to-video.tts-test
+(ns descript-to-video.tts.tts-test
   (:require
    [clojure.test :refer :all]
-   [descript-to-video.tts :refer :all]))
+   [descript-to-video.tts.tts :refer :all]))
 
 (comment
   (def raw-text (slurp "sample/sample.md"))
