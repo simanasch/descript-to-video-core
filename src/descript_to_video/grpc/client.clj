@@ -1,6 +1,6 @@
 (ns descript-to-video.grpc.client
   (:gen-class
-   :name descript-to-video.grpc-client.service.TTSServiceInpl
+   :name descript_to_video.grpc-client.service.TTSServiceInpl
    :extends
    io.grpc.ttscontroller.TTSServiceGrpc$TTSServiceImplBase)
   (:import

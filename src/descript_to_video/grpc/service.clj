@@ -1,6 +1,6 @@
 (ns descript-to-video.grpc.service
   (:gen-class
-   :name descript-to-video.grpc.service.GreeterServiceImpl
+   :name descript_to_video.grpc.service.GreeterServiceImpl
    :extends
    io.grpc.examples.helloworld.GreeterGrpc$GreeterImplBase)
   (:import
