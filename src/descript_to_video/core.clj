@@ -1,13 +1,16 @@
 (ns descript-to-video.core
   (:gen-class)
-  (:require [ring.adapter.jetty :as server]
+  (:require [compojure.core :refer [routes]]
+            [ring.adapter.jetty :as server]
+            [descript-to-video.handler.main :refer [main-routes]]
             [descript-to-video.tts.tts :as tts]
             [descript-to-video.markdown.parser :as mdparser]
             [descript-to-video.grpc.client :as client]
             [descript-to-video.markdown.marp :as marp]
             [descript-to-video.util.file :as f]
             [descript-to-video.aviutl.aviutl :as aviutl]
-            [descript-to-video.aviutl.parser :as aviutl-parser]))
+            [descript-to-video.aviutl.parser :as aviutl-parser]
+            [descript-to-video.middleware :refer [wrap-dev]]))
   ;; [descript-to-video.grpc.service]
   ;; (:import [io.grpc Server ServerBuilder]
   ;;          [io.grpc.stub StreamObserver]
@@ -31,14 +34,25 @@
 
 (defonce server (atom nil))
 
-(defn handler [req]
-  {:status 200
-   :headers {"Content-Type" "text/plain"}
-   :body "Hello, world"})
+(defn- wrap [handler middleware opt]
+  (if (true? opt)
+    (middleware handler)
+    (if opt
+      (middleware handler opt)
+      handler)))
+
+(def app
+  (-> (routes
+      ;;  todo-routes
+       main-routes)
+      ;; (wrap wrap-dev (string? (:dev env)))
+      wrap-dev
+      ))
+
 
 (defn start-server []
   (when-not @server
-    (reset! server (server/run-jetty handler {:port 3000 :join? false}))))
+    (reset! server (server/run-jetty #'app {:port 3000 :join? false}))))
 
 (defn stop-server []
   (when @server
