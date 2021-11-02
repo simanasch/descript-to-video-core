@@ -1,2 +1,6 @@
+* text=auto
 *.exa eol=crlf working-tree-encoding=sjis
 *.exo eol=crlf working-tree-encoding=sjis
+*.clj text eol=lf
+*.cljs text eol=lf
+*.proto text eol=lf
