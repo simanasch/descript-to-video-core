@@ -21,3 +21,5 @@ node_modules
 /sample/*
 !/sample/sample.md
 .clj-kondo
+.yarn
+.pnp.js
