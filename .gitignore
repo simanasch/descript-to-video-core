@@ -25,4 +25,7 @@ node_modules
 .pnp.js
 .classpath
 .project
-/.settings
+.settings
+.shadow-cljs/
+resources/public/js
+resources/main.js
