@@ -4,11 +4,19 @@
   "author": "simana",
   "license": "Eclipse Public License - v 2.0",
   "private": true,
+  "main": "resources/main.js",
   "scripts": {
-    "dev": "marp --html --server .",
-    "build": "marp --html --pdf --allow-local-files --title 'スライドのタイトル' slide.md -o ./slide.pdf"
+    "dev": "shadow-cljs watch main renderer",
+    "build": "shadow-cljs compile main renderer",
+    "clean": "rm -rf resources/public/js/* && rm -rf target"
+  },
+  "devDependencies": {
+    "electron": "^8.2.5",
+    "shadow-cljs": "^2.8.110"
   },
   "dependencies": {
-    "@marp-team/marp-cli": "^1.1.1"
+    "@marp-team/marp-cli": "^1.1.1",
+    "react": "16.13.0",
+    "react-dom": "16.13.0"
   }
 }
