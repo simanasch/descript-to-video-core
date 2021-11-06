@@ -29,3 +29,4 @@ node_modules
 .shadow-cljs/
 resources/public/js
 resources/main.js
+descript-to-video-win32-x64/
