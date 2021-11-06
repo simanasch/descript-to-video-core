@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [compojure.core :refer [routes]]
             [ring.adapter.jetty :as server]
-            [descript-to-video.handler.main :refer [main-routes]]
+            ;; [descript-to-video.handler.main :refer [main-routes]]
             [descript-to-video.tts.tts :as tts]
             [descript-to-video.markdown.parser :as mdparser]
             [descript-to-video.grpc.client :as client]
@@ -10,7 +10,8 @@
             [descript-to-video.util.file :as f]
             [descript-to-video.aviutl.aviutl :as aviutl]
             [descript-to-video.aviutl.parser :as aviutl-parser]
-            [descript-to-video.middleware :refer [wrap-dev]]))
+            [descript-to-video.middleware :refer [wrap-dev]]
+            ))
   ;; [descript-to-video.grpc.service]
   ;; (:import [io.grpc Server ServerBuilder]
   ;;          [io.grpc.stub StreamObserver]
@@ -41,13 +42,13 @@
       (middleware handler opt)
       handler)))
 
-(def app
-  (-> (routes
-      ;;  todo-routes
-       main-routes)
-      ;; (wrap wrap-dev (string? (:dev env)))
-      ;; wrap-dev
-      ))
+(def app nil)
+  ;; (-> (routes
+;;       ;;  todo-routes
+;;        main-routes)
+;;       ;; (wrap wrap-dev (string? (:dev env)))
+;;       wrap-dev
+      ;; ))
 
 
 (defn start-server []
