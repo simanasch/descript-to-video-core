@@ -7,12 +7,13 @@
   "yarnからmarpを呼び出し、引数のmarkdown-pathにあるmarkdownファイルを複数枚画像にする
    戻り値:出力したスライドの絶対パスのリスト 失敗していた場合は空リスト"
   [markdown-path]
-  (let [result (shell/sh "cmd" "/c" (str "yarn marp " markdown-path " --images png --image-scale 1.5"))
+  (let [result (shell/sh "cmd" "/c" (str "npx marp " markdown-path " --images png --image-scale 1.5"))
         errors (keep #(re-find #"[\\\.\w]+png" %) (s/split-lines (:err result)))]
     (map f/getAbsolutePath errors)))
 
 (comment
-  (shell/sh "cmd" "/c" "yarn marp sample/sample.md --images png --allow-local-files --image-scale 1.5")
+  (let [raw-result (shell/sh "cmd" "/c" "npx  marp E://Documents/descript-to-video/sample/sample.md --images png --allow-local-files --image-scale 1.5")]
+    (println raw-result))
   (def result (export-slides "E://Documents/descript-to-video/sample/sample.md"))
   (def infos (s/split-lines (:err result)))
   (str (second infos))

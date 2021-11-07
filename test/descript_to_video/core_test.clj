@@ -9,8 +9,14 @@
 (comment
   ;; 以下動作確認してる時のサンプル
   ;; (def lib-text  (mdparser/get-voiceroid-text-lines (line-seq (slurp "E://Documents/descript-to-video/sample/sample.md"))))
+            
+  (require '[descript-to-video.markdown.marp :as marp])
+  (let  [markdown "E://Documents/descript-to-video/sample/sample.md"
+         slides (marp/export-slides markdown)]
+    (println slides))
   (-main)
   (start)
+  
   ;; (tts/talk (first (first lib-text)) (rest (first lib-text)))
   ;; (for [sentence lib-text
   ;;       :let [library (first sentence)
