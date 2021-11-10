@@ -29,6 +29,8 @@
                  [compojure "1.6.2"]
                  [hiccup "1.0.5"]
                  [environ "1.2.0"]
+                 [http-kit "2.3.0"]
+                 [jarohen/chord "0.8.1"]
                  ]
   :main ^:skip-aot descript-to-video.core
 
