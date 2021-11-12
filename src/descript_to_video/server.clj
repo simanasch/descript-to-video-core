@@ -2,7 +2,7 @@
   (:require
    [org.httpkit.server :refer [run-server]]
    [chord.http-kit :refer [with-channel wrap-websocket-handler]]
-   [clojure.core.async :refer [<! >! put! close! go]])
+   [clojure.core.async :refer [<! >! put! close! go chan]])
   )
 
 (defonce server (atom nil))
@@ -17,9 +17,10 @@
   (with-channel req ws-ch
     (go
       (let [{:keys [message]} (<! ws-ch)]
-        (prn "Message received:" message)
+        (println "Received message:" message)
         (>! ws-ch "Hello client from server!")
-        (close! ws-ch)))))
+        (close! ws-ch)
+        ))))
 
 (defn start-server []
   (reset! server (run-server #'app {:port port})))

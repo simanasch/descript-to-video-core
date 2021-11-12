@@ -7,7 +7,7 @@
             [lein-environ "1.2.0"]]
   :min-lein-version "2.0.0"
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/core.async "1.3.618"]
+                 [org.clojure/core.async "1.4.627"]
                 ;;  設定ファイルとかに使う依存関係
                  [io.forward/yaml "1.0.10"]
                 ;;  gRPCに使う依存関係
