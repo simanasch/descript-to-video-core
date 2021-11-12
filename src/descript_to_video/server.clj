@@ -19,7 +19,7 @@
       (let [{:keys [message]} (<! ws-ch)]
         (println "Received message:" message)
         (>! ws-ch "Hello client from server!")
-        (close! ws-ch)
+        ;; (close! ws-ch)
         ))))
 
 (defn start-server []
