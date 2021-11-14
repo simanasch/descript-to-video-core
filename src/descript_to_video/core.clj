@@ -17,74 +17,27 @@
   ;;          [io.grpc.stub StreamObserver]
   ;;          [descript-to-video.grpc.service GreeterServiceImpl]))
 
-;; (def SERVER_PORT 30051)
-
-;; (defn start []
-;;   (let [greeter-service (new GreeterServiceImpl)
-;;         server (-> (ServerBuilder/forPort SERVER_PORT)
-;;                    (.addService greeter-service)
-;;                    (.build)
-;;                    (.start))]
-;;     (-> (Runtime/getRuntime)
-;;         (.addShutdownHook
-;;          (Thread. (fn []
-;;                     (if (not (nil? server))
-;;                       (.shutdown server))))))
-;;     (if (not (nil? server))
-;;       (.awaitTermination server))))
-
-(defonce server (atom nil))
-
-(defn- wrap [handler middleware opt]
-  (if (true? opt)
-    (middleware handler)
-    (if opt
-      (middleware handler opt)
-      handler)))
-
-(def app nil)
-  ;; (-> (routes
-;;       ;;  todo-routes
-;;        main-routes)
-;;       ;; (wrap wrap-dev (string? (:dev env)))
-;;       wrap-dev
-      ;; ))
-
-
-(defn start-server []
-  (when-not @server
-    (reset! server (server/run-jetty #'app {:port 3000 :join? false}))))
-
-(defn stop-server []
-  (when @server
-    (.stop @server)
-    (reset! server nil)))
-
-(defn restart-server []
-  (when @server
-    (stop-server)
-    (start-server)))
-
 (defn start
-  [& args]
-  (let [template-path "E://Documents/descript-to-video/sample/sample.exo"
-        markdown (cond (string? args) args :else "E://Documents/descript-to-video/sample/sample.md")
-        ;; "E://Documents/descript-to-video/sample/sample.md"
-        tts-lines  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown)))
-        slides (marp/export-slides markdown)
-        ;; slide-joined (map aviutl/get-slide-object-as-ordered-map slides)
-        tts-results (tts/record-lines tts-lines)
-        result-exo (-> (aviutl-parser/aviutl-object->yaml (slurp template-path :encoding "shift-jis"))
-                            (aviutl/merge-aviutl-objects (aviutl/get-tts-objects (flatten tts-results)))
-                            (aviutl/merge-aviutl-objects (aviutl/get-slide-objects slides (aviutl/get-slide-display-positions tts-results))))]
-    ;; TODO:別スレッドでの処理に移動
-
-    (println tts-results)
-    (println slides)
-    (println (str (f/getFolderName template-path) "\\sample_result.exo"))
-    (spit
-     (str (f/getFolderName template-path) "\\sample_result.exo")
-     (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis"))
+  ([args]
+   (let [{:keys [markdown-path exo-path]} args]
+     (println markdown-path)
+     (println exo-path)
+     (let
+      [tts-lines (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown-path)))
+       slides (marp/export-slides markdown-path)
+       tts-results (tts/record-lines tts-lines)
+       result-exo (-> (aviutl-parser/aviutl-object->yaml (slurp exo-path :encoding "shift-jis"))
+                      (aviutl/merge-aviutl-objects (aviutl/get-tts-objects (flatten tts-results)))
+                      (aviutl/merge-aviutl-objects (aviutl/get-slide-objects slides (aviutl/get-slide-display-positions tts-results))))]
+       (println tts-results)
+       (println slides)
+       (spit
+        (str (f/getFolderName exo-path) "\\sample_result.exo")
+        (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis")
+       (str (f/getFolderName exo-path) "\\sample_result.exo"))))
+  ([]
+   (start {:exo-path "E://Documents/descript-to-video/sample/sample.exo"
+           :markdown-path "E://Documents/descript-to-video/sample/sample.md"}))
   )
 
 (defn -main

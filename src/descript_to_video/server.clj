@@ -1,10 +1,11 @@
 (ns descript-to-video.server
   (:require
+   [descript-to-video.core :as core]
    [org.httpkit.server :refer [run-server]]
    [chord.http-kit :refer [with-channel wrap-websocket-handler]]
-   [clojure.core.async :refer [<! >! put! close! go chan]])
+   [clojure.core.async :refer [<! >! put! close! go chan]]
+   [clojure.tools.reader.edn :as edn])
   )
-
 (defonce server (atom nil))
 (def port 3000)
 
@@ -17,13 +18,18 @@
   (with-channel req ws-ch
     (go
       (let [{:keys [message]} (<! ws-ch)]
-        (println "Received message:" message)
-        (>! ws-ch "Hello client from server!")
+        (println "Received message:" message )
+        (>! ws-ch (core/start (edn/read-string message)))
         ;; (close! ws-ch)
         ))))
 
 (defn start-server []
   (reset! server (run-server #'app {:port port})))
+
+(defn restart-server []
+  (when @server
+    (stop-server)
+    (start-server)))
 
 (comment
 
@@ -31,4 +37,5 @@
   (start-server)
   @server
   (stop-server)
+  (restart-server)
   )
