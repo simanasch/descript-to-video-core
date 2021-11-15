@@ -1,6 +1,7 @@
 (ns descript-to-video.util.format
   (:require [clojure.string :only replace]))
 
+
 (defn string->hex
   "StringをUTF-16LEとして受け取りhexの値を返す"
   [s]
