@@ -1,8 +1,8 @@
 (ns descript-to-video.aviutl.parser
   (:require
    [clojure.string :as s]
-   [yaml.core :as yaml])
-  (:refer  flatland.ordered.map))
+   [yaml.core :as yaml]
+   [flatland.ordered.map :refer [ordered-map]]))
 
 (defn- get-level
   "aviutlのオブジェクトについて、ネストの階層を返す"

@@ -19,9 +19,6 @@
   (str (second infos))
   (def output-png-pathes (filter (complement nil?) (map #(re-find #"[\\\.\w]+png" %) infos)))
   (f/getAbsolutePath (first output-png-pathes))
-  (let [o "[  INFO ] Converting 1 markdown..."]
-    (if-let [path #(re-find #"[\\\.\w]+png" o)]
-      (println path)))
   (map f/getAbsolutePath '())
   (cond->)
   (println (:err result))

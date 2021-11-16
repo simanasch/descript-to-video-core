@@ -1,6 +1,6 @@
 (ns descript-to-video.util.map
-  (:require [clojure.walk :as w])
-  (:refer  flatland.ordered.map))
+  (:require [clojure.walk :as w]
+            [flatland.ordered.map :refer [ordered-map]]))
 
 (defn deep-merge-with
   "contribにあったものの移植、ネストしたmapに対して再帰的にmerge-withをコールする"

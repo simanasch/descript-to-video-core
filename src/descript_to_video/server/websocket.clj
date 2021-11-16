@@ -2,8 +2,8 @@
   (:require
    [descript-to-video.core :as core]
    [org.httpkit.server :refer [run-server]]
-   [chord.http-kit :refer [with-channel wrap-websocket-handler]]
-   [clojure.core.async :refer [<! >! put! close! go chan]]
+   [chord.http-kit :refer [wrap-websocket-handler]]
+   [clojure.core.async :refer [<! >! go]]
    [clojure.tools.reader.edn :as edn])
   )
 (defonce server (atom nil))
@@ -33,7 +33,6 @@
 
 (comment
 
-  (def inst (run-server (-> #'app wrap-websocket-handler) {:port 3000}))
   (start-server)
   @server
   (stop-server)
