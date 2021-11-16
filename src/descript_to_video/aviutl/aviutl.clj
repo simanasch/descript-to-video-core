@@ -108,5 +108,8 @@
   (into [] (map #(apply get-slide-object-as-ordered-map %1 %2)  slide-pathes slide-display-positions)))
 
 (defn merge-aviutl-objects
+  "aviutlの.exobjectをパースしたordered-mapをマージする
+   template:ベースにするordered-map
+   tts-objects:マージするordered-mapのsec"
   [template tts-objects]
   (reduce parser/concat-aviutl-map template tts-objects))

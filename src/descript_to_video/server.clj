@@ -14,17 +14,17 @@
     (@server :timeout 100)
     (reset! server nil)))
 
-(defn app [req]
-  (with-channel req ws-ch
-    (go
-      (let [{:keys [message]} (<! ws-ch)]
+(defn websocket-handler [{:keys [ws-channel] :as req}]
+  (go (let [{:keys [message]} (<! ws-channel)]
         (println "Received message:" message )
-        (>! ws-ch (core/start (edn/read-string message)))
-        ;; (close! ws-ch)
-        ))))
+        ;; (>! ws-channel "hello client from server!")
+        (>! ws-channel (core/start (edn/read-string message)))
+        )))
 
 (defn start-server []
-  (reset! server (run-server #'app {:port port})))
+  (reset! server 
+          (run-server (-> #'websocket-handler wrap-websocket-handler)
+                      {:port port})))
 
 (defn restart-server []
   (when @server
