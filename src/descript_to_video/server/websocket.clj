@@ -1,4 +1,4 @@
-(ns descript-to-video.server
+(ns descript-to-video.server.websocket
   (:require
    [descript-to-video.core :as core]
    [org.httpkit.server :refer [run-server]]
