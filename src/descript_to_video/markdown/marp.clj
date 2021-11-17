@@ -12,9 +12,9 @@
     (map f/getAbsolutePath errors)))
 
 (comment
-  (let [raw-result (shell/sh "cmd" "/c" "npx  marp E://Documents/descript-to-video/sample/sample.md --images png --allow-local-files --image-scale 1.5")]
+  (let [raw-result (shell/sh "cmd" "/c" "npx  marp ./sample/sample.md --images png --allow-local-files --image-scale 1.5")]
     (println raw-result))
-  (def result (export-slides "E://Documents/descript-to-video/sample/sample.md"))
+  (def result (export-slides "./sample/sample.md"))
   (def infos (s/split-lines (:err result)))
   (str (second infos))
   (def output-png-pathes (filter (complement nil?) (map #(re-find #"[\\\.\w]+png" %) infos)))

@@ -112,7 +112,7 @@
 
   (def lib-text  (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides raw-text)))
   (def tts-results (tts/record-lines lib-text))
-  (def template-path "E://Documents/descript-to-video/sample/sample.exo")
+  (def template-path "./sample/sample.exo")
   (def tts-joined (get-tts-objects template-path  tts-results))
   (loop [start 1
          res  (flatten tts-results)

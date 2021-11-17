@@ -37,8 +37,8 @@
         (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis")
        (str (f/getFolderName exo-path) "\\sample_result.exo"))))
   ([]
-   (start {:exo-path "E://Documents/descript-to-video/sample/sample.exo"
-           :markdown-path "E://Documents/descript-to-video/sample/sample.md"}))
+   (start {:exo-path "./sample/sample.exo"
+           :markdown-path "./sample/sample.md"}))
   )
 
 (defn -main
