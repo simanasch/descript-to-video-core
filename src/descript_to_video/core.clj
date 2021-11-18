@@ -19,23 +19,20 @@
   ;;          [descript-to-video.grpc.service GreeterServiceImpl]))
 
 (defn start
-  ([args]
-   (let [{:keys [markdown-path exo-path]} args]
-     (println markdown-path)
-     (println exo-path)
-     (let
-      [tts-lines (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown-path)))
-       slides (marp/export-slides markdown-path)
-       tts-results (tts/record-lines tts-lines)
-       result-exo (-> (aviutl-parser/aviutl-object->yaml (slurp exo-path :encoding "shift-jis"))
-                      (aviutl/merge-aviutl-objects (aviutl/get-tts-objects (flatten tts-results)))
-                      (aviutl/merge-aviutl-objects (aviutl/get-slide-objects slides (aviutl/get-slide-display-positions tts-results))))]
-       (println tts-results)
-       (println slides)
-       (spit
-        (str (f/getFolderName exo-path) "\\sample_result.exo")
-        (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis")
-       (str (f/getFolderName exo-path) "\\sample_result.exo"))))
+  ([{:keys [markdown-path exo-path]}]
+   (let
+    [tts-lines (map mdparser/get-voiceroid-text-lines (mdparser/split-by-slides (slurp markdown-path)))
+     slides (marp/export-slides markdown-path)
+     tts-results (tts/record-lines tts-lines)
+     result-exo (-> (aviutl-parser/aviutl-object->yaml (slurp exo-path :encoding "shift-jis"))
+                    (aviutl/merge-aviutl-objects (aviutl/get-tts-objects (flatten tts-results)))
+                    (aviutl/merge-aviutl-objects (aviutl/get-slide-objects slides (aviutl/get-slide-display-positions tts-results))))]
+     (println tts-results)
+     (println slides)
+     (spit
+      (str (f/getFolderName exo-path) "\\sample_result.exo")
+      (aviutl-parser/yaml->aviutl-object result-exo) :encoding "shift-jis")
+     (str (f/getFolderName exo-path) "\\sample_result.exo")))
   ([]
    (start {:exo-path "./sample/sample.exo"
            :markdown-path "./sample/sample.md"}))

@@ -16,7 +16,10 @@
 
 
 (defn get-library-list
-  "SpeechSample.exeを実行し、結果から使用可能なTTSライブラリの一覧を取得する"
+  "@deprecated
+   SpeechSample.exeを実行し、結果から使用可能なTTSライブラリの一覧を取得する
+   TODO:grpc実装のほうに移動"
+  {:deprecated true}
   []
   (let [rawOutput (shell/sh "cmd" "/c" ttsControllerPath "-v" :out-enc "shift-jis")
         exitCode (:exit rawOutput)
@@ -25,45 +28,41 @@
       (= exitCode 0) (s/split-lines output)
       :else [])))
 
-(defn talk
-  "TTSライブラリ名とテキストを指定し、SpeechSample.exeで喋らせる"
-  [library text]
-  (g/talk library text))
-
 (defn gen-file-name
-  [library text]
-  (str (d/get-time-stamp) "_" library "_" text))
+  "タイムスタンプ、ttsのライブラリ名、テキスト内容を連結して保存時のファイル名を生成する"
+  [[library text] path]
+  (str path (d/get-time-stamp) "_" library "_" text ".wav"))
 
-(defn save-to-file
-  [library text]
-  (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
-        filepath (f/getAbsolutePath (str default-output-path (gen-file-name library joinedText)))
-        wavFilePath (str filepath ".wav")
-        textFileName (str filepath ".txt")]
-    (io/make-parents wavFilePath)
-    (spit textFileName joinedText :encoding "shift-jis")
-    (g/record library joinedText wavFilePath)))
+;; (defn save-to-file
+;;   "2引数の場合:ttsライブラリ名とテキストを引数に、ファイル名を生成して録音する
+;;    3引数の場合:引数のファイル名を使用"
+;;   ([library text]
+;;   (save-to-file library text (f/getAbsolutePath (str default-output-path (gen-file-name library (cond (seq? text) (s/join "。" text) :else text))))))
+;;   ([library text path]
+;;    (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
+;;         wavFilePath (str path ".wav")
+;;         textFileName (str path ".txt")]
+;;     (io/make-parents wavFilePath)
+;;     (spit textFileName joinedText :encoding "shift-jis")
+;;     (g/record library joinedText wavFilePath))))
 
-(defn save-to-exo
-  [library text start]
-  (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
-        filepath (f/getAbsolutePath (str default-output-path (gen-file-name library joinedText)))
-        wavFileName (str filepath ".wav")
-        exo-file-name (str filepath ".exo")
-        result (save-to-file library text)]
-    (spit exo-file-name (parser/yaml->aviutl-object (aviutl/get-tts-object start wavFileName joinedText library)) :encoding "shift-jis")))
+;; (defn save-to-exo
+;;   [library text start]
+;;   (let [joinedText (cond (seq? text) (s/join "。" text) :else text)
+;;         filepath (f/getAbsolutePath (str default-output-path (gen-file-name library joinedText)))
+;;         wavFileName (str filepath ".wav")
+;;         exo-file-name (str filepath ".exo")
+;;         result (save-to-file library text)]
+;;     (spit exo-file-name (parser/yaml->aviutl-object (aviutl/get-tts-object start wavFileName joinedText library)) :encoding "shift-jis")))
 
-(defn save-to-files
-  [ttslist]
-  (doall (map #(save-to-file (first %) (rest %)) ttslist)))
-
-(defn gen-requests
-  [line]
-  (-> 
-   line 
-   (as-> x
-         (conj x (f/getAbsolutePath (str "output/voices/" (s/join "_" x) ".wav")))
-     (apply g/gen-tts-request x))))
+(defn- gen-requests
+  ([line] (gen-requests line default-output-path))
+  ([line path]
+   (->
+    line
+    (as-> x
+          (conj x (f/getAbsolutePath (gen-file-name x path)))
+      (apply g/gen-tts-request x)))))
 
 (defn talk-lines
   [lines]
