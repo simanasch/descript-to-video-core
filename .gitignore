@@ -16,6 +16,7 @@ pom.xml.asc
 node_modules
 .vscode
 **/*.jpg
+**/*.png
 /voices
 /output
 /sample/*
@@ -25,8 +26,4 @@ node_modules
 .pnp.js
 .classpath
 .project
-.settings
-.shadow-cljs/
-resources/public/js
-resources/main.js
 descript-to-video-win32-x64/
