@@ -14,10 +14,8 @@
   (let  [markdown "./sample/sample.md"
          slides (marp/export-slides markdown)]
     (println slides))
+  (start-server)
   (-main)
-  (start)
-  (start {:exo-path "./test/resources/test_sample.exo"
-           :markdown-path "./test/resources/test_sample.md"})
   
   ;; (tts/talk (first (first lib-text)) (rest (first lib-text)))
   ;; (for [sentence lib-text
