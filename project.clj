@@ -42,7 +42,8 @@
   :java-source-paths  ["target/generated-sources/protobuf"]
 
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}
+  :profiles {:uberjar {:aot :all
+                       :main descript-to-video.core}
              :dev {:aot :all
                    :dependencies [[prone "0.8.2"]
                                   [alembic "0.3.2"]]

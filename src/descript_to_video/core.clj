@@ -17,10 +17,13 @@
 (defonce server (atom nil))
 (def port 3000)
 
+(def app
+  (-> #'websocket-server/websocket-handler 
+      wrap-websocket-handler))
+
 (defn start-server []
   (reset! server 
-          (run-server (-> #'websocket-server/websocket-handler wrap-websocket-handler)
-                      {:port port})))
+          (run-server app {:port port})))
 
 (defn stop-server []
   (when-not (nil? @server)
@@ -37,4 +40,6 @@
   [& args]
   ;; TODO:引数の値による処理分岐
   (apply println "Received args:" args)
-  (client/shutdown-connection!))
+  (start-server)
+  ;; (client/shutdown-connection!)
+  )
