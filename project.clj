@@ -23,12 +23,13 @@
                 ;;  [instaparse "1.4.10"]
                 ;; フロントエンドに使う依存関係
                  [ring "1.9.4"]
-                 [ring/ring-jetty-adapter "1.7.1"]
+                ;;  [ring/ring-jetty-adapter "1.7.1"]
                  [ring/ring-defaults "0.1.5"]
                  [metosin/ring-http-response "0.9.3"]
                  [compojure "1.6.2"]
                  [hiccup "1.0.5"]
                  [environ "1.2.0"]
+                ;;  フロントエンドとの通信のうちwebsocketに使ってる依存関係
                  [http-kit "2.3.0"]
                  [jarohen/chord "0.8.1"]
                  ]
