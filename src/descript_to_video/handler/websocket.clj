@@ -36,5 +36,5 @@
 (defn websocket-handler [{:keys [ws-channel] :as req}]
   (go (let [{:keys [message]} (<! ws-channel)]
         (println "Received message:" message)
-        (>! ws-channel "hello client from server!")
+        (>! ws-channel (str "hello client from server!" message))
         (>! ws-channel (start (edn/read-string message))))))

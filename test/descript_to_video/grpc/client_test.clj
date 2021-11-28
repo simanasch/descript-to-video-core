@@ -34,6 +34,7 @@
      (gen-tts-request "さとうささら" "別のさとうささらです" "./output/voices/別のさとうささらです.wav")
      (gen-tts-request "VOICEROID64" "ゆかり"  "Voiceroidのゆかりさんです" "./output/voices/ゆかりさんです.wav")])
   (map #(talk %) sample-requests)
+  (talk (gen-tts-request "ゆかり" "ゆかりさんです" "."))
   (map #(record %) sample-requests)
   (record (gen-tts-request "ゆかり" "これはテストです" "./これはテストです"))
   (talk (last sample-requests))
