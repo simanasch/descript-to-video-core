@@ -8,6 +8,10 @@ camera=0
 _name=画像ファイル
 file=E:¥Videos¥VoiceroidWaveFiles.001.png
 [0.1]
+_name=フェード
+イン=0.50
+アウト=0.50
+[0.2]
 _name=標準描画
 X=0.0
 Y=0.0

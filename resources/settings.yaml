@@ -21,3 +21,7 @@ slide:
   layer: 3
   alias: resources/alias/yukari.exo
   voice: 茜
+葵:
+  layer: 9
+  alias: resources/alias/yukari.exo
+  voice: 葵
