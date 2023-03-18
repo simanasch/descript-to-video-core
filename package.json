@@ -10,6 +10,6 @@
     "build": "marp --html --pdf --allow-local-files --title 'スライドのタイトル' slide.md -o ./slide.pdf"
   },
   "dependencies": {
-    "@marp-team/marp-cli": "^1.1.1"
+    "@marp-team/marp-cli": "^1.7.2"
   }
 }
